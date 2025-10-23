@@ -36,17 +36,17 @@ export default defineConfig({
 	},
 	resolve: {
 		extensions: [ '.ts', '.js', '.mjs', '.json', '.jsx', '.tsx'],
-		dedupe: [
-			'thing-editor/**'
-		],
-		preserveSymlinks: true,
-		alias: {
-			'libs': __dirname + '/libs',
-			'games': __dirname + '/games',
-			'thing-editor': __dirname + '/thing-editor',
-			'pixi.js': __dirname + '/node_modules/pixi.js/dist/pixi.mjs'
-		}
-	},
+		        dedupe: [
+		            'thing-editor/**',
+		            'three'
+		        ],		preserveSymlinks: true,
+		                alias: {
+		                    'libs': __dirname + '/libs',
+		                    'games': __dirname + '/games',
+		                    'thing-editor': __dirname + '/thing-editor',
+		                    'pixi.js': __dirname + '/node_modules/pixi.js/dist/pixi.mjs',
+		                    'three': __dirname + '/node_modules/three'
+		                }	},
 	define: {
 		SPINE_SRC_PATH: JSON.stringify('/node_modules/pixi-spine/dist/pixi-spine.js')
 	}
