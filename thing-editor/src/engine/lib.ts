@@ -1132,11 +1132,12 @@ const __onAssetAdded = (file: FileDesc) => {
 		break;
 	case AssetType.RESOURCE:
 		file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
-		if (isAtlasAsset(file.asset)) {
-			Lib.addResource(file.assetName, file.fileName, 0, file);
-		}
-		break;
-	case AssetType.BITMAP_FONT:
+		        if (isAtlasAsset(file.asset)) {
+		            Lib.addResource(file.assetName, file.fileName, 0, file);
+		        }
+		        break;
+		    case AssetType.FBX:
+		        break;	case AssetType.BITMAP_FONT:
 		Assets.load(file.fileName);
 		break;
 	case AssetType.L10N:
@@ -1190,13 +1191,14 @@ const __onAssetUpdated = (file: FileDesc) => {
 		Lib.__addSoundEditor(file as FileDescSound);
 		break;
 	case AssetType.RESOURCE:
-		if (isAtlasAsset(file.asset)) {
-			Lib.removeAtlas(file);
-			file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
-			Lib.addResource(file.assetName, file.fileName, 0, file);
-		}
-		break;
-	case AssetType.BITMAP_FONT:
+		        if (isAtlasAsset(file.asset)) {
+		            Lib.removeAtlas(file);
+		            file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
+		            Lib.addResource(file.assetName, file.fileName, 0, file);
+		        }
+		        break;
+		    case AssetType.FBX:
+		        break;	case AssetType.BITMAP_FONT:
 		Assets.load(file.fileName + '?v=' + file.v);
 		break;
 	case AssetType.L10N:
@@ -1222,12 +1224,13 @@ const __onAssetDeleted = (file: FileDesc) => {
 		game.editor.ui.refresh();
 		break;
 	case AssetType.RESOURCE:
-		if (isAtlasAsset(file.asset)) {
-			Lib.removeAtlas(file);
-			game.editor.ui.refresh();
-		}
-		break;
-	case AssetType.L10N:
+		        if (isAtlasAsset(file.asset)) {
+		            Lib.removeAtlas(file);
+		            game.editor.ui.refresh();
+		        }
+		        break;
+		    case AssetType.FBX:
+		        break;	case AssetType.L10N:
 		game.editor.LanguageView.removeAsset();
 		break;
 	case AssetType.SOUND:

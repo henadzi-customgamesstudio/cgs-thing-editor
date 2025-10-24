@@ -41,6 +41,7 @@ import MovieClip from 'thing-editor/src/engine/lib/assets/src/basic/movie-clip.c
 import Scene from 'thing-editor/src/engine/lib/assets/src/basic/scene.c';
 import { CTRL_READABLE } from 'thing-editor/src/engine/utils/utils';
 import ResourceEditor from './props-editors/resource-editor';
+import FbxEditor from './props-editors/fbx-editor';
 import SpineSequencesEditor from './props-editors/spine-sequences/spine-sequences-editor';
 
 let editorProps = {
@@ -430,6 +431,7 @@ PropsEditor.registerRenderer('string', StringEditor, null);
 PropsEditor.registerRenderer('l10n', L10nEditor, null);
 PropsEditor.registerRenderer('image', ImageEditor, null);
 PropsEditor.registerRenderer('resource', ResourceEditor, null);
+PropsEditor.registerRenderer('fbx', FbxEditor, null);
 PropsEditor.registerRenderer('prefab', PrefabPropertyEditor, null);
 PropsEditor.registerRenderer('sound', SoundEditor, null);
 PropsEditor.registerRenderer('boolean', BooleanEditor, false);

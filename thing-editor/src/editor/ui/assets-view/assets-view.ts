@@ -38,6 +38,7 @@ assetsItemsRenderers.set(AssetType.PREFAB, assetItemRendererPrefab as (file: Fil
 
 assetsItemsRenderers.set(AssetType.BITMAP_FONT, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.RESOURCE, assetItemRendererResource as (file: FileDesc) => ComponentChild);
+assetsItemsRenderers.set(AssetType.FBX, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FONT, assetItemRendererFont as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.L10N, assetItemRendererL10n as (file: FileDesc) => ComponentChild);
 
@@ -70,6 +71,10 @@ assetTypesIcons.set(AssetType.CLASS, R.img({
 assetTypesIcons.set(AssetType.RESOURCE, R.img({
 	src: './img/asset-resource.png',
 	title: 'Show Resources'
+}));
+assetTypesIcons.set(AssetType.FBX, R.img({
+	src: './img/asset-resource.png',
+	title: 'Show FBX'
 }));
 
 let allWindowsIds: string[] = [];

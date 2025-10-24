@@ -78,8 +78,8 @@ enum AssetType {
 	SCENE = 'SCENE',
 	PREFAB = 'PREFAB',
 	CLASS = 'CLASS',
-	RESOURCE = 'RESOURCE',
-	BITMAP_FONT = 'BITMAP_FONT',
+	    RESOURCE = 'RESOURCE',
+	    FBX = 'FBX',	BITMAP_FONT = 'BITMAP_FONT',
 	L10N = 'L10N',
 	/** non file asses. Used in enumAssetsPropsRecursive to copy l10n values */
 	L10N_ENTRY = 'L10N_ENTRY',
@@ -113,8 +113,8 @@ const ASSETS_PARSERS = {
 	'.s.json': AssetType.SCENE,
 	'.p.json': AssetType.PREFAB,
 	'.l.json': AssetType.L10N,
-	'.json': AssetType.RESOURCE,
-	'.woff': AssetType.FONT,
+	    '.json': AssetType.RESOURCE,
+	    '.fbx': AssetType.FBX,	'.woff': AssetType.FONT,
 	'.woff2': AssetType.FONT,
 	'.wav': AssetType.SOUND,
 	'.xml': AssetType.BITMAP_FONT,
@@ -136,6 +136,7 @@ ASSET_EXT_CROP_LENGTHS.set(AssetType.L10N, 7);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.SOUND, 4);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.CLASS, 5);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.RESOURCE, 5);
+ASSET_EXT_CROP_LENGTHS.set(AssetType.FBX, 4);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.BITMAP_FONT, 4);
 
 const EMPTY: FileDescImage = {
@@ -328,9 +329,10 @@ export default class fs {
 		case AssetType.BITMAP_FONT:
 			const fontTextures = BitmapFont.available[file.assetName.split('/').pop()!].pageTextures;
 			return fontTextures[Object.keys(fontTextures)[0]].baseTexture.touched;
-		case AssetType.RESOURCE:
-			return Lib.resources[file.assetName]?.___lastTouch || Number.MAX_SAFE_INTEGER;
-			debugger;
+		        case AssetType.RESOURCE:
+		            return Lib.resources[file.assetName]?.___lastTouch || Number.MAX_SAFE_INTEGER;
+		        case AssetType.FBX:
+		            return Number.MAX_SAFE_INTEGER;			debugger;
 		}
 		return Number.MAX_SAFE_INTEGER;
 	}
