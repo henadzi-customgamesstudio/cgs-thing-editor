@@ -23,10 +23,21 @@ function validateObjectDataRecursive(objectData: SerializedObject, rootName: str
 				if (field.type === 'image') {
 					if (objectData.p.hasOwnProperty(field.name)) {
 						const imageName = objectData.p[field.name];
-						if (!fs.getFileByAssetName(imageName, AssetType.IMAGE)) {
-							validationError('Invalid image \'' + imageName + '\'', rootName, (o: Container) => {
-								return (o as KeyedObject)[field.name] === imageName;
-							}, field.name, 99999, objectsConstructor);
+						if(Array.isArray(imageName)) {
+							for(let name of imageName) {
+								if (!fs.getFileByAssetName(name, AssetType.IMAGE)) {
+									validationError('Invalid image \'' + name + '\'', rootName, (o: Container) => {
+										return (o as KeyedObject)[field.name] === name;
+									}, field.name, 99999, objectsConstructor);
+								}
+							}
+						} else {
+							if (!fs.getFileByAssetName(imageName, AssetType.IMAGE)) {
+								debugger;
+								validationError('Invalid image \'' + imageName + '\'', rootName, (o: Container) => {
+									return (o as KeyedObject)[field.name] === imageName;
+								}, field.name, 99999, objectsConstructor);
+							}
 						}
 					}
 				} else if (field.type === 'sound') {
