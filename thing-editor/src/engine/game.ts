@@ -766,7 +766,8 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 		this.__time++;
 
 		if (!game.__EDITOR_mode && this.currentScene && this.currentScene.name === 'preloader') {
-			this.loadingProgress = Math.round(Math.min(100, game.time / 3));
+			const preloadTime = this.projectDesc.__editorPreloadTime || 3;
+			this.loadingProgress = Math.round(Math.min(100, game.time / preloadTime));
 		}
 
 		/*

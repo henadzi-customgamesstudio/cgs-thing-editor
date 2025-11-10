@@ -250,6 +250,11 @@
 			"default": [
 				"my-library"
 			]
+		},
+		"__editorPreloadTime": {
+			"description": "duration in seconds for preloader scene in editor mode. Simulates asset loading time during development.",
+			"type": "number",
+			"default": 3
 		}
 	},
 	"title": "JSON schema for thing-editor configuration files"

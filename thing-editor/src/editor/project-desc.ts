@@ -51,6 +51,7 @@ declare global {
 		autoFullScreenMobile: false;
 		__group: string;
 		libs: string[];
-	}
+		__editorPreloadTime?: number;
+}
 }
 
