@@ -125,10 +125,21 @@ export default class Label extends Text {
 
 	update() {
 		this.updateValue();
+		
+		// FIX START: if value is set (through applyValue or dataPath), but animation hasn't reached the end - continue updating
+		if (this.isNumeric && (this.counterSpeed < 1) && (this.processedVal !== undefined) && (this.processedVal !== this.showedVal)) {
+			this.applyValue(this.processedVal);
+		}
+		// FIX END
+
 		super.update();
 	}
 
 	applyValue(val: any) {
+		// FIX START: remember target value, so update() can continue animation
+		this.processedVal = val;
+		// FIX END
+
 		if (this.isNumeric) {
 			if ((this.counterSpeed < 1) && (this.showedVal !== undefined)) {
 				let step = Math.max(1 / Math.pow(10, this.decimalsCount), Math.abs((val - (this.showedVal || 0)) * this.counterSpeed));
