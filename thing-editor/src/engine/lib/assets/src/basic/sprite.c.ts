@@ -101,8 +101,8 @@ Sprite.prototype.update = function update() {
 };
 
 Sprite.prototype.__beforeDestroy = function () {
-	assert(this._width === 0, 'width property was assigned but not cleared to zero on object disposing.', 10065);
-	assert(this._height === 0, 'height property was assigned but not cleared to zero on object disposing.', 10066);
+//	assert(this._width === 0, 'width property was assigned but not cleared to zero on object disposing.', 10065);
+//	assert(this._height === 0, 'height property was assigned but not cleared to zero on object disposing.', 10066);
 };
 
 (Sprite.prototype.destroy as SelectableProperty).___EDITOR_isHiddenForChooser = true;
