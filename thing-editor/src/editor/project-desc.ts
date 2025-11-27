@@ -49,6 +49,7 @@ declare global {
 		defaultLanguage: string;
 		autoFullScreenDesktop: false;
 		autoFullScreenMobile: false;
+		debugEmulatePortrait?: boolean;
 		__group: string;
 		libs: string[];
 		__editorPreloadTime?: number;

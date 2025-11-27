@@ -360,6 +360,16 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 		const bodyW = w;
 		const bodyH = h;
 
+		/// #if DEBUG
+		if (game.projectDesc.debugEmulatePortrait) {
+			game.isMobile.any = true;
+			if (game.projectDesc.portraitWidth && game.projectDesc.portraitHeight) {
+				w = game.projectDesc.portraitWidth;
+				h = game.projectDesc.portraitHeight;
+			}
+		}
+		/// #endif
+
 		//let debugInfo = 'w: ' + w + '; h: ' + h;
 
 		let dynamicStageSize = game.projectDesc.dynamicStageSize;
