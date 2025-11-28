@@ -99,6 +99,7 @@ export default class Viewport extends ComponentDebounced<ClassAttributes<Viewpor
 		this.stopExecution = this.stopExecution.bind(this);
 		this.onOneStepClick = this.onOneStepClick.bind(this);
 		this.showResolutionSelectMenu = this.showResolutionSelectMenu.bind(this);
+		this.fitToScreen = this.fitToScreen.bind(this);
 		editorEvents.once('projectDidOpen', () => {
 			this.setSpeed(game.editor.settings.getItem('speed', 1));
 			this.restoreResolution();
@@ -221,6 +222,31 @@ export default class Viewport extends ComponentDebounced<ClassAttributes<Viewpor
 		} else {
 			game.stage.x = 0;
 			game.stage.y = 0;
+		}
+	}
+
+	fitToScreen() {
+		const renderer = game.pixiApp.renderer;
+		const viewWidth = renderer.width / renderer.resolution;
+		const viewHeight = renderer.height / renderer.resolution;
+
+		const padding = 20;
+		const availableWidth = viewWidth - padding * 2;
+		const availableHeight = viewHeight - padding * 2;
+
+		const scaleX = availableWidth / game.W;
+		const scaleY = availableHeight / game.H;
+		const scale = Math.min(scaleX, scaleY, 1);
+
+		game.stage.scale.x = scale;
+		game.stage.scale.y = scale;
+
+		if (PrefabEditor.currentPrefabName) {
+			game.stage.x = viewWidth / 2;
+			game.stage.y = viewHeight / 2;
+		} else {
+			game.stage.x = (viewWidth - game.W * scale) / 2;
+			game.stage.y = (viewHeight - game.H * scale) / 2;
 		}
 	}
 

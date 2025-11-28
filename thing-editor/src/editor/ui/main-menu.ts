@@ -291,6 +291,13 @@ const MAIN_MENU: MainMenuItem[] = [
 						ruler.initRuler();
 					}
 				}
+			},
+			{
+				name: 'Fit to screen',
+				hotkey: { key: '0', ctrlKey: true },
+				onClick: () => {
+					game.editor.ui.viewport.fitToScreen();
+				}
 			}
 		]
 	}
