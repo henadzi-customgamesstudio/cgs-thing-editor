@@ -217,7 +217,7 @@ let getPathOfNode = (node: Container): SelectionPath => {
 	return ret;
 };
 
-const selectNodeByPath = (path: SelectionPath) => {
+const findNodeByPath = (path: SelectionPath): Container | undefined => {
 	let ret = game.stage as Container;
 	for (let i = path.length - 1; i >= 0 && ret; i--) {
 		let p = path[i];
@@ -225,16 +225,24 @@ const selectNodeByPath = (path: SelectionPath) => {
 		if (p.i < a.length) {
 			ret = a[p.i] as Container;
 		} else {
-			return;
+			return undefined;
 		}
 	}
-
 	if (ret && ret !== game.stage) {
-		game.editor.selection.add(ret);
+		return ret;
+	}
+	return undefined;
+};
+
+const selectNodeByPath = (path: SelectionPath) => {
+	const node = findNodeByPath(path);
+	if (node) {
+		game.editor.selection.add(node);
 	}
 };
 
-export type { SelectionData };
+export type { SelectionData, SelectionPath };
+export { getPathOfNode, selectNodeByPath, findNodeByPath };
 
 
 //-------- sorting selection --------------------------------

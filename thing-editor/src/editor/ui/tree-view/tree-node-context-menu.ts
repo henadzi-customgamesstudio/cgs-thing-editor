@@ -180,6 +180,18 @@ const TREE_NODE_CONTEXT_MENU: ContextMenuItem[] = [
 		onClick: editorUtils.onUnwrapClick,
 		disabled: () => !editorUtils.isCanBeUnwrapped(),
 		hotkey: { key: 'Delete', ctrlKey: true }
+	},
+	null,
+	{
+		name: R.fragment(R.icon('accept'), 'Save runtime state'),
+		tip: 'Save current object state during play mode. Changes will be applied to scene after stopping.',
+		onClick: () => {
+			for (const o of game.editor.selection) {
+				game.editor.saveRuntimeObjectState(o);
+			}
+		},
+		hidden: () => game.__EDITOR_mode,
+		disabled: () => game.editor.selection.length === 0
 	}
 ];
 

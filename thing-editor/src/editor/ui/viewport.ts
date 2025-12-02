@@ -173,9 +173,30 @@ export default class Viewport extends ComponentDebounced<ClassAttributes<Viewpor
 				EDITOR_FLAGS.isStoppingTime = true;
 				game.__EDITOR_mode = true;
 				game.__clearStage();
+				const pendingScenes = game.editor.getRuntimeSavedScenesInfo();
 				game.editor.restoreBackup();
 				EDITOR_FLAGS.isStoppingTime = false;
 				game.stage.interactiveChildren = false;
+
+				if (pendingScenes.length > 0) {
+					const currentSceneName = game.currentScene?.name as string;
+					const otherScenes = pendingScenes.filter(s => s !== currentSceneName);
+					if (otherScenes.length > 0) {
+						game.editor.ui.modal.showEditorQuestion(
+							'Runtime states saved',
+							R.fragment(
+								R.div(null, 'Open and save scenes: '),
+								R.b(null, otherScenes.join(', '))
+							),
+							() => {
+								if (otherScenes.length === 1) {
+									game.editor.openScene(otherScenes[0]);
+								}
+							},
+							otherScenes.length === 1 ? ('Open ' + otherScenes[0]) : 'Ok'
+						);
+					}
+				}
 			}
 
 			this.forceUpdate();

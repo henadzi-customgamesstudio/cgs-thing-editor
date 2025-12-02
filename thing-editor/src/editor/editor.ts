@@ -53,6 +53,13 @@ import type { ContextMenuItem } from './ui/context-menu';
 import MainMenu from './ui/main-menu';
 import { StatusClearingCondition } from './ui/status-clearing-condition';
 import roundUpPoint from './utils/round-up-point';
+import { getPathOfNode, findNodeByPath, type SelectionPath } from 'thing-editor/src/editor/utils/selection';
+
+interface RuntimeSavedState {
+	path: SelectionPath;
+	props: SerializedObjectProps;
+	sceneName: string;
+}
 
 const LAST_SCENE_NAME = '__EDITOR_last_scene_name';
 
@@ -117,6 +124,8 @@ class Editor {
 
 	savedBackupName?: string | null;
 	savedBackupSelectionData?: SelectionData;
+
+	private _runtimeSavedStates: RuntimeSavedState[] = [];
 
 	/** editor space mouse coord X */
 	mouseX = 0;
@@ -286,6 +295,113 @@ class Editor {
 		if (Lib.hasScene(this.currentSceneBackupName)) {
 			Lib.__deleteScene(this.currentSceneBackupName);
 		}
+	}
+
+	saveRuntimeObjectState(o: Container) {
+		const path = getPathOfNode(o);
+		const sceneName = game.currentScene?.name as string;
+		if (!sceneName || path.length === 0) {
+			return;
+		}
+
+		const propsList = (o.constructor as SourceMappedConstructor).__editableProps;
+		const props: SerializedObjectProps = {};
+
+		for (const p of propsList) {
+			if (!p.notSerializable) {
+				if (p.visible && !p.visible(o)) {
+					continue;
+				}
+				const val = (o as KeyedObject)[p.name];
+				if (typeof val !== 'undefined') {
+					if (p.type === 'rect') {
+						props[p.name] = {
+							x: val.x,
+							y: val.y,
+							w: val.w,
+							h: val.h
+						};
+					} else {
+						props[p.name] = val;
+					}
+				}
+			}
+		}
+
+		const existingIndex = this._runtimeSavedStates.findIndex(
+			s => s.sceneName === sceneName && JSON.stringify(s.path) === JSON.stringify(path)
+		);
+		if (existingIndex >= 0) {
+			this._runtimeSavedStates[existingIndex].props = props;
+		} else {
+			this._runtimeSavedStates.push({ path, props, sceneName });
+		}
+
+		this.ui.modal.notify(R.span(null, R.icon('accept'), ' Runtime state saved for: ' + (o.name || (o.constructor as SourceMappedConstructor).__className)));
+	}
+
+	applyRuntimeSavedStates() {
+		const sceneName = game.currentScene?.name as string;
+		if (!sceneName) {
+			return;
+		}
+
+		const statesToApply = this._runtimeSavedStates.filter(s => s.sceneName === sceneName);
+		if (statesToApply.length === 0) {
+			return;
+		}
+
+		let appliedCount = 0;
+		for (const state of statesToApply) {
+			const node = findNodeByPath(state.path);
+			if (node) {
+				const propsList = (node.constructor as SourceMappedConstructor).__editableProps;
+				for (const p of propsList) {
+					if (state.props.hasOwnProperty(p.name) && !p.notSerializable) {
+						const val = state.props[p.name];
+						if (p.type === 'rect' && val) {
+							const rect = (node as KeyedObject)[p.name];
+							if (rect) {
+								rect.x = val.x;
+								rect.y = val.y;
+								rect.w = val.w;
+								rect.h = val.h;
+							}
+						} else {
+							(node as KeyedObject)[p.name] = val;
+						}
+					}
+				}
+				Lib.__invalidateSerializationCache(node);
+				appliedCount++;
+			}
+		}
+
+		if (appliedCount > 0) {
+			this._runtimeSavedStates = this._runtimeSavedStates.filter(s => s.sceneName !== sceneName);
+			this.history.setCurrentStateModified();
+			this.refreshTreeViewAndPropertyEditor();
+		}
+	}
+
+	clearRuntimeSavedStates() {
+		this._runtimeSavedStates = [];
+	}
+
+	hasRuntimeSavedStates(): boolean {
+		return this._runtimeSavedStates.length > 0;
+	}
+
+	hasRuntimeSavedStatesForScene(sceneName: string): boolean {
+		return this._runtimeSavedStates.some(s => s.sceneName === sceneName);
+	}
+
+	getRuntimeSavedScenesInfo(): string[] {
+		const scenes = new Set<string>();
+		for (const state of this._runtimeSavedStates) {
+			scenes.add(state.sceneName);
+		}
+		return Array.from(scenes);
 	}
 
 	editProperty(field: EditablePropertyDesc | string, val: any, delta?: boolean) {
@@ -636,6 +752,11 @@ class Editor {
 				this.selection.loadCurrentSelection();
 			}
 			this.history.setCurrentStateUnmodified();
+
+			if (this.hasRuntimeSavedStatesForScene(game.currentScene.name as string)) {
+				this.applyRuntimeSavedStates();
+			}
+
 			this.ui.refresh();
 			regenerateCurrentSceneMapTypings();
 		}
