@@ -35,6 +35,9 @@ export default class Button extends DSprite {
 	@editable({ visible: (o) => { return !o.disabledImage; }, min: 0, max: 1, step: 0.01, default: 0.76 })
 	disabledAlpha = 0;
 
+	@editable({min: 0, max: 1, step: 0.01, default: 1, tip: 'Alpha of the button when it is enabled.' })
+	enabledAlpha = 1;
+
 	@editable({ important: true })
 	enabled = true;
 
@@ -171,7 +174,7 @@ export default class Button extends DSprite {
 			if (this.disabledImage) {
 				this.image = this.initialImage;
 			} else {
-				this.alpha = 1;
+				this.alpha = this.enabledAlpha;
 			}
 		}
 		this.enabled = true;
