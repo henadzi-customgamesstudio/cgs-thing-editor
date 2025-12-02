@@ -352,6 +352,8 @@ class Editor {
 		}
 
 		let appliedCount = 0;
+		const failedObjects: string[] = [];
+
 		for (const state of statesToApply) {
 			const node = findNodeByPath(state.path);
 			if (node) {
@@ -374,11 +376,28 @@ class Editor {
 				}
 				Lib.__invalidateSerializationCache(node);
 				appliedCount++;
+			} else {
+				const objectName = state.path[0]?.n || 'unknown';
+				failedObjects.push(objectName);
 			}
 		}
 
+		this._runtimeSavedStates = this._runtimeSavedStates.filter(s => s.sceneName !== sceneName);
+
+		if (failedObjects.length > 0) {
+			this.ui.modal.showEditorQuestion(
+				'Warning',
+				R.fragment(
+					R.div(null, 'Could not apply states for objects:'),
+					R.b(null, failedObjects.join(', ')),
+					R.div({ style: { marginTop: '10px' } }, 'These objects were likely created during runtime and don\'t exist in the original scene.')
+				),
+				() => {},
+				'Ok'
+			);
+		}
+
 		if (appliedCount > 0) {
-			this._runtimeSavedStates = this._runtimeSavedStates.filter(s => s.sceneName !== sceneName);
 			this.history.setCurrentStateModified();
 			this.refreshTreeViewAndPropertyEditor();
 		}
