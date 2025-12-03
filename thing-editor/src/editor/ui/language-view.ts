@@ -306,7 +306,12 @@ const generateLocalizationTypings = () => {
 	}
 	src.push('}\n');
 	const content = src.join('\n');
-	fs.writeFile('/thing-editor/src/editor/localization-typings.ts', src.join('\n'));
+	fs.writeFile('/thing-editor/src/editor/localization-typings.ts', content);
+
+	if (game.editor.currentProjectDir) {
+		const projectPath = game.editor.currentProjectDir + 'localization-typings.ts';
+		fs.writeFile(projectPath, content);
+	}
 
 	if (game.editor.currentProjectDir) {
 		const projectPath = game.editor.currentProjectDir + 'localization-typings.ts';
