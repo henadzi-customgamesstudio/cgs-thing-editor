@@ -41,6 +41,7 @@ assetsItemsRenderers.set(AssetType.RESOURCE, assetItemRendererResource as (file:
 assetsItemsRenderers.set(AssetType.FBX, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FONT, assetItemRendererFont as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.L10N, assetItemRendererL10n as (file: FileDesc) => ComponentChild);
+assetsItemsRenderers.set(AssetType.VIDEO, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 
 
 (assetsItemsRenderers as Map<AssetType, (file: FileDescClass) => ComponentChild>).set(AssetType.CLASS, assetItemRendererClass);
@@ -75,6 +76,10 @@ assetTypesIcons.set(AssetType.RESOURCE, R.img({
 assetTypesIcons.set(AssetType.FBX, R.img({
 	src: './img/asset-resource.png',
 	title: 'Show FBX'
+}));
+assetTypesIcons.set(AssetType.VIDEO, R.img({
+	src: './img/asset-resource.png',
+	title: 'Show Videos'
 }));
 
 let allWindowsIds: string[] = [];

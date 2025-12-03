@@ -305,6 +305,12 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 						images.push(hashed(file));
 					}
 				}
+			} else if (file.assetType === AssetType.VIDEO) {
+				assetsToCopy.push({
+					from: file.fileName,
+					//	to: hashed(file) //+ '.mp4'
+					to: file.assetName + '.mp4'
+				});
 			} else if (file.assetType === AssetType.SCENE) {
 				scenes[file.assetName] = file.asset as SerializedObject;
 			} else if (file.assetType === AssetType.PREFAB) {
@@ -403,3 +409,4 @@ function renderTextWithFilesLinks(txt: string) {
 }
 
 export { addPostBuildScript, addPreBuildScript, getAssetsToCopy };
+

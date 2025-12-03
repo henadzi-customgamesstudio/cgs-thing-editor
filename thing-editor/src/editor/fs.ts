@@ -84,6 +84,7 @@ enum AssetType {
 	/** non file asses. Used in enumAssetsPropsRecursive to copy l10n values */
 	L10N_ENTRY = 'L10N_ENTRY',
 	FONT = 'FONT',
+	VIDEO = 'VIDEO',
 }
 
 const AllAssetsTypes: AssetType[] = Object.values(AssetType);
@@ -118,7 +119,8 @@ const ASSETS_PARSERS = {
 	'.woff2': AssetType.FONT,
 	'.wav': AssetType.SOUND,
 	'.xml': AssetType.BITMAP_FONT,
-	'.c.ts': AssetType.CLASS
+	'.c.ts': AssetType.CLASS,
+	'.mp4': AssetType.VIDEO
 };
 
 const ASSET_TYPE_TO_EXT = {
