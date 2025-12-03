@@ -298,12 +298,20 @@ const parseAssets = () => {
 };
 
 const generateLocalizationTypings = () => {
-	const src = ['export interface LocalizationKeys {'];
+	const src = [
+		'type KeyedObject = { [key: string]: any };',
+		'export interface LocalizationKeys {'];
 	for (const key in currentLanguageData) {
 		src.push('(id: \'' + key + '\', values?: KeyedObject | number): string;');
 	}
 	src.push('}\n');
+	const content = src.join('\n');
 	fs.writeFile('/thing-editor/src/editor/localization-typings.ts', src.join('\n'));
+
+	if (game.editor.currentProjectDir) {
+		const projectPath = game.editor.currentProjectDir + 'localization-typings.ts';
+		fs.writeFile(projectPath, content);
+	}
 };
 
 const sortTextList = (a: SelectEditorItem, b: SelectEditorItem) => {

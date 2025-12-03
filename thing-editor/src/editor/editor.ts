@@ -585,6 +585,15 @@ class Editor {
 
 			editorEvents.emit('gameWillBeInitialized');
 
+			const projectTypings = this.currentProjectDir + 'localization-typings.ts';
+			const engineTypings = 'thing-editor/src/editor/localization-typings.ts';
+
+			if (fs.exists(projectTypings)) {
+				fs.copyFile(projectTypings, engineTypings);
+			} else {
+				fs.writeFile(engineTypings, 'export interface LocalizationKeys {}\n');
+			}
+
 			game.init(window.document.getElementById('viewport-root') || undefined, 'editor.' + this.projectDesc.id);
 
 			game.stage.interactiveChildren = false;
