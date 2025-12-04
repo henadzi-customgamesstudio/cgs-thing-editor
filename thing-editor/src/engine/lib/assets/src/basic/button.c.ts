@@ -214,7 +214,7 @@ export default class Button extends DSprite {
 		/// #endif
 		assert(this.isCanBePressed, '_executeOnClick called for button which could not be pressed at the moment.');
 
-		game.emit('button-click', this, source);
+		this.emitClickEvent(source);
 
 		Button.clickedButton = this;
 		if (this.onClickCallback) {
@@ -238,6 +238,10 @@ export default class Button extends DSprite {
 		}
 
 		latestClickTime = game.time;
+	}
+
+	protected emitClickEvent(source?: string) {
+		game.emit('button-click', this, source);
 	}
 
 	_isNotPausable() {
