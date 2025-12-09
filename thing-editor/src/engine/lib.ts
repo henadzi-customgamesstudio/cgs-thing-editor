@@ -58,8 +58,8 @@ const _initParsers = () => {
 	const originalBMFParser = loadBitmapFont!.parse!;
 	loadBitmapFont!.parse = (asset: string, options, ...args) => {
 		const reg = /(file=")([^"]+)(")/gm;
-		let result:RegExpExecArray |null;
-		let fixedAsset:string = asset;
+		let result: RegExpExecArray | null;
+		let fixedAsset: string = asset;
 		while ((result = reg.exec(asset)) !== null) {
 			const a = options!.src!.split('/');
 			a.pop();
@@ -90,6 +90,9 @@ export default class Lib
 	static resources: KeyedObject = {};
 
 	static fonts: KeyedObject = {};
+
+	static videos: KeyedObject = {};
+
 
 	static REMOVED_TEXTURE: Texture;
 
@@ -223,55 +226,55 @@ export default class Lib
 			getVersionedFileName(parentAsset!) ||
 			/// #endif
 			url).then((atlas: Spritesheet) => {
-			if (atlas.textures) {
-				for (const textureName in atlas.textures) {
-					const texture = atlas.textures[textureName];
-					textures[textureName] = texture;
+				if (atlas.textures) {
+					for (const textureName in atlas.textures) {
+						const texture = atlas.textures[textureName];
+						textures[textureName] = texture;
 
-					/// #if EDITOR
-					const existingAsset = fs.getFileByAssetName(textureName, AssetType.IMAGE);
-					if (existingAsset) {
-						existingAsset.asset = texture;
-						existingAsset.parentAsset = parentAsset;
-					} else {
-						const cloneAsset = Object.assign({}, parentAsset);
-						cloneAsset.asset = texture;
-						cloneAsset.assetName = textureName;
-						cloneAsset.parentAsset = parentAsset;
-						cloneAsset.assetType = AssetType.IMAGE;
-						fs.addSubAsset(cloneAsset);
-					}
-				/// #endif
-				}
-			}
-			Lib.resources[name] = atlas;
-			game.loadingRemove(url);
-			/// #if EDITOR
-			game.editor.ui.refresh();
-			/// #endif
-		}).catch((_er) => {
-			/// #if EDITOR
-			debugger;
-			attempt = 3;
-			/// #endif
-			if (attempt < 3 && !game._loadingErrorIsDisplayed) {
-				attempt++;
-				window.setTimeout(() => {
-					Lib.addResource(name, url + ((attempt === 1) ? '?a' : 'a'), attempt
 						/// #if EDITOR
-						, parentAsset
+						const existingAsset = fs.getFileByAssetName(textureName, AssetType.IMAGE);
+						if (existingAsset) {
+							existingAsset.asset = texture;
+							existingAsset.parentAsset = parentAsset;
+						} else {
+							const cloneAsset = Object.assign({}, parentAsset);
+							cloneAsset.asset = texture;
+							cloneAsset.assetName = textureName;
+							cloneAsset.parentAsset = parentAsset;
+							cloneAsset.assetType = AssetType.IMAGE;
+							fs.addSubAsset(cloneAsset);
+						}
+						/// #endif
+					}
+				}
+				Lib.resources[name] = atlas;
+				game.loadingRemove(url);
+				/// #if EDITOR
+				game.editor.ui.refresh();
+				/// #endif
+			}).catch((_er) => {
+				/// #if EDITOR
+				debugger;
+				attempt = 3;
+				/// #endif
+				if (attempt < 3 && !game._loadingErrorIsDisplayed) {
+					attempt++;
+					window.setTimeout(() => {
+						Lib.addResource(name, url + ((attempt === 1) ? '?a' : 'a'), attempt
+							/// #if EDITOR
+							, parentAsset
+							/// #endif
+						);
+						game.loadingRemove(url);
+					}, attempt * 1000);
+				} else {
+					game.showLoadingError(url
+						/// #if DEBUG
+						+ '; ' + _er.stack
 						/// #endif
 					);
-					game.loadingRemove(url);
-				}, attempt * 1000);
-			} else {
-				game.showLoadingError(url
-					/// #if DEBUG
-					+ '; ' + _er.stack
-					/// #endif
-				);
-			}
-		});
+				}
+			});
 	}
 
 	static addTexture(name: string, textureURL: string | Texture, attempt = 0) {
@@ -295,34 +298,34 @@ export default class Lib
 				getVersionedFileName(asset) ||
 				/// #endif
 				textureURL).then((newTexture) => {
-				/// #if EDITOR
-				if (textures[name]) {
-					if (textures[name] && !Lib.__isSystemTexture(textures[name], name)) {
-						Lib._unloadTexture(name);
-					}
-					const oldTexture = textures[name];
-					Object.assign(oldTexture, newTexture);
-					oldTexture.onBaseTextureUpdated(newTexture.baseTexture);
-					oldTexture._updateID = Date.now();
-				} else {
-					/// #endif
-					textures[name] = newTexture;
 					/// #if EDITOR
-				}
-				/// #endif
-				Lib._afterTextureLoaded(name);
-				game.loadingRemove(textureURL);
-			}).catch(() => {
-				if (attempt < 3 && !game._loadingErrorIsDisplayed) {
-					attempt++;
-					window.setTimeout(() => {
-						Lib.addTexture(name, textureURL + ((attempt === 1) ? '?a' : 'a'), attempt);
-						game.loadingRemove(textureURL);
-					}, attempt * 1000);
-				} else {
-					game.showLoadingError(textureURL as string);
-				}
-			});
+					if (textures[name]) {
+						if (textures[name] && !Lib.__isSystemTexture(textures[name], name)) {
+							Lib._unloadTexture(name);
+						}
+						const oldTexture = textures[name];
+						Object.assign(oldTexture, newTexture);
+						oldTexture.onBaseTextureUpdated(newTexture.baseTexture);
+						oldTexture._updateID = Date.now();
+					} else {
+						/// #endif
+						textures[name] = newTexture;
+						/// #if EDITOR
+					}
+					/// #endif
+					Lib._afterTextureLoaded(name);
+					game.loadingRemove(textureURL);
+				}).catch(() => {
+					if (attempt < 3 && !game._loadingErrorIsDisplayed) {
+						attempt++;
+						window.setTimeout(() => {
+							Lib.addTexture(name, textureURL + ((attempt === 1) ? '?a' : 'a'), attempt);
+							game.loadingRemove(textureURL);
+						}, attempt * 1000);
+					} else {
+						game.showLoadingError(textureURL as string);
+					}
+				});
 		} else {
 			textures[name] = textureURL;
 			Lib._afterTextureLoaded(name);
@@ -344,15 +347,15 @@ export default class Lib
 	static _afterTextureLoaded(name: string) {
 		let baseTexture = textures[name].baseTexture;
 		switch (Lib._getTextureSettingsBits(name, 24)) {
-		case 0:
-			baseTexture.wrapMode = WRAP_MODES.CLAMP;
-			break;
-		case 8:
-			baseTexture.wrapMode = WRAP_MODES.REPEAT;
-			break;
-		default:
-			baseTexture.wrapMode = WRAP_MODES.MIRRORED_REPEAT;
-			break;
+			case 0:
+				baseTexture.wrapMode = WRAP_MODES.CLAMP;
+				break;
+			case 8:
+				baseTexture.wrapMode = WRAP_MODES.REPEAT;
+				break;
+			default:
+				baseTexture.wrapMode = WRAP_MODES.MIRRORED_REPEAT;
+				break;
 		}
 
 		if (Lib._getTextureSettingsBits(name, 4)) {
@@ -367,7 +370,7 @@ export default class Lib
 	}
 
 	/// #if EDITOR
-	static __isSystemTexture(texture: Texture, imageName:string) {
+	static __isSystemTexture(texture: Texture, imageName: string) {
 		if (game.editor.buildProjectAndExit) {
 			return imageName === 'EMPTY' || imageName === 'WHITE';
 		}
@@ -444,6 +447,11 @@ export default class Lib
 		Sound.__refreshDebugger();
 		/// #endif
 	}
+
+	static addVideo(name: string, url: string) {
+		Lib.videos[name] = url;
+	}
+
 
 	static preloadSound(soundId: string | null
 		/// #if EDITOR
@@ -583,7 +591,7 @@ export default class Lib
 		return ret;
 	}
 
-	static getHashedFileName(assetName:string
+	static getHashedFileName(assetName: string
 		/// #if EDITOR
 		, assetType = AssetType.IMAGE
 		/// #endif
@@ -640,9 +648,16 @@ export default class Lib
 				Lib.fonts[Lib.unHashFileName(fontName, assetsRoot)] = assetsRoot + fontName;
 			}
 		}
+
+		if (data.videos) {
+			for (const videoName of data.videos) {
+				Lib.addVideo(Lib.unHashFileName(videoName, assetsRoot), assetsRoot + videoName);
+			}
+		}
+
 	}
 
-	static unHashFileName (fileName: string, assetsRoot: string = Lib.ASSETS_ROOT): string {
+	static unHashFileName(fileName: string, assetsRoot: string = Lib.ASSETS_ROOT): string {
 		const n = fileName.lastIndexOf('.');
 		if (n > 0) {
 			const ret = fileName.substring(0, n - 9) + fileName.substring(n);
@@ -970,7 +985,7 @@ export default class Lib
 	* @protected
 	*/
 	static __overrideSound(soundId: string, src: string[] | string | HowlSound) {
-		let s:HowlSound;
+		let s: HowlSound;
 		if (src instanceof HowlSound) {
 			s = src;
 		} else {
@@ -1111,131 +1126,134 @@ const isAtlasAsset = (asset: any) => {
 
 const __onAssetAdded = (file: FileDesc) => {
 	switch (file.assetType) {
-	case AssetType.PREFAB:
-		assert(!file.asset, 'asset reference of added file should be empty.');
-		file.asset = Lib.prefabs[file.assetName] = fs.readJSONFile(file.fileName);
-		game.editor.ui.refresh();
-		break;
-	case AssetType.SCENE:
-		assert(!file.asset, 'asset reference of added file should be empty.');
-		file.asset = Lib.scenes[file.assetName] = fs.readJSONFile(file.fileName);
-		game.editor.ui.refresh();
-		break;
-	case AssetType.IMAGE:
-		Lib.addTexture(file.assetName, (file as FileDescImage).asset || file.fileName);
-		file.asset = Lib.getTexture(file.assetName);
-		game.editor.ui.refresh();
-		break;
+		case AssetType.PREFAB:
+			assert(!file.asset, 'asset reference of added file should be empty.');
+			file.asset = Lib.prefabs[file.assetName] = fs.readJSONFile(file.fileName);
+			game.editor.ui.refresh();
+			break;
+		case AssetType.SCENE:
+			assert(!file.asset, 'asset reference of added file should be empty.');
+			file.asset = Lib.scenes[file.assetName] = fs.readJSONFile(file.fileName);
+			game.editor.ui.refresh();
+			break;
+		case AssetType.IMAGE:
+			Lib.addTexture(file.assetName, (file as FileDescImage).asset || file.fileName);
+			file.asset = Lib.getTexture(file.assetName);
+			game.editor.ui.refresh();
+			break;
 
-	case AssetType.SOUND:
-		Lib.__addSoundEditor(file as FileDescSound);
-		break;
-	case AssetType.RESOURCE:
-		file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
-		        if (isAtlasAsset(file.asset)) {
-		            Lib.addResource(file.assetName, file.fileName, 0, file);
-		        }
-		        break;
-		    case AssetType.FBX:
-		        break;	case AssetType.BITMAP_FONT:
-		Assets.load(file.fileName);
-		break;
-	case AssetType.L10N:
-		file.asset = L._deserializeLanguage(fs.readJSONFile(file.fileName) as KeyedObject);
-		game.editor.LanguageView.addAssets();
-		break;
+		case AssetType.SOUND:
+			Lib.__addSoundEditor(file as FileDescSound);
+			break;
+		case AssetType.RESOURCE:
+			file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
+			if (isAtlasAsset(file.asset)) {
+				Lib.addResource(file.assetName, file.fileName, 0, file);
+			}
+			break;
+		case AssetType.FBX:
+			break; case AssetType.BITMAP_FONT:
+			Assets.load(file.fileName);
+			break;
+		case AssetType.L10N:
+			file.asset = L._deserializeLanguage(fs.readJSONFile(file.fileName) as KeyedObject);
+			game.editor.LanguageView.addAssets();
+			break;
+		case AssetType.VIDEO:
+			Lib.addVideo(file.assetName, file.fileName);
+			break;
 	}
 };
 
 const __onAssetUpdated = (file: FileDesc) => {
 	let isAcceptChanges;
 	switch (file.assetType) {
-	case AssetType.PREFAB:
-		isAcceptChanges = false;
-		if (PrefabEditor.currentPrefabName !== file.assetName) {
-			isAcceptChanges = true;
-		} else {
-			if (!game.editor.isCurrentContainerModified) {
+		case AssetType.PREFAB:
+			isAcceptChanges = false;
+			if (PrefabEditor.currentPrefabName !== file.assetName) {
 				isAcceptChanges = true;
 			} else {
-				const answer = fs.showQuestion(
-					'Do you want to load external changes?',
-					'prefab "' + file.assetName + '" was changed externally.',
-					'Keep editing',
-					'Discard your changes and load external changes'/*,
+				if (!game.editor.isCurrentContainerModified) {
+					isAcceptChanges = true;
+				} else {
+					const answer = fs.showQuestion(
+						'Do you want to load external changes?',
+						'prefab "' + file.assetName + '" was changed externally.',
+						'Keep editing',
+						'Discard your changes and load external changes'/*,
 						'Ignore external changes'*/);
-				isAcceptChanges = answer === 1;
+					isAcceptChanges = answer === 1;
+				}
 			}
-		}
-		if (isAcceptChanges) {
-			__refreshPrefabRefsPrepare();
-			file.asset = fs.readJSONFile(file.fileName);
-			Lib.prefabs[file.assetName] = (file as FileDescPrefab).asset;
-			__refreshPrefabRefs();
-			if (PrefabEditor.currentPrefabName === file.assetName) {
-				PrefabEditor.exitPrefabEdit();
-				PrefabEditor.editPrefab(file.assetName);
+			if (isAcceptChanges) {
+				__refreshPrefabRefsPrepare();
+				file.asset = fs.readJSONFile(file.fileName);
+				Lib.prefabs[file.assetName] = (file as FileDescPrefab).asset;
+				__refreshPrefabRefs();
+				if (PrefabEditor.currentPrefabName === file.assetName) {
+					PrefabEditor.exitPrefabEdit();
+					PrefabEditor.editPrefab(file.assetName);
+				}
+				game.editor.ui.refresh();
 			}
-			game.editor.ui.refresh();
-		}
 
-		break;
-	case AssetType.SCENE:
-		//TODO
-		break;
-	case AssetType.IMAGE:
-		Lib.addTexture(file.assetName, file.fileName);
-		game.editor.ui.refresh();
-		break;
-	case AssetType.SOUND:
-		Lib.__addSoundEditor(file as FileDescSound);
-		break;
-	case AssetType.RESOURCE:
-		        if (isAtlasAsset(file.asset)) {
-		            Lib.removeAtlas(file);
-		            file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
-		            Lib.addResource(file.assetName, file.fileName, 0, file);
-		        }
-		        break;
-		    case AssetType.FBX:
-		        break;	case AssetType.BITMAP_FONT:
-		Assets.load(file.fileName + '?v=' + file.v);
-		break;
-	case AssetType.L10N:
-		file.asset = L._deserializeLanguage(fs.readJSONFile(file.fileName) as KeyedObject);
-		game.editor.LanguageView.addAssets();
-		break;
+			break;
+		case AssetType.SCENE:
+			//TODO
+			break;
+		case AssetType.IMAGE:
+			Lib.addTexture(file.assetName, file.fileName);
+			game.editor.ui.refresh();
+			break;
+		case AssetType.SOUND:
+			Lib.__addSoundEditor(file as FileDescSound);
+			break;
+		case AssetType.RESOURCE:
+			if (isAtlasAsset(file.asset)) {
+				Lib.removeAtlas(file);
+				file.asset = fs.readJSONFile(file.fileName) as KeyedObject;
+				Lib.addResource(file.assetName, file.fileName, 0, file);
+			}
+			break;
+		case AssetType.FBX:
+			break; case AssetType.BITMAP_FONT:
+			Assets.load(file.fileName + '?v=' + file.v);
+			break;
+		case AssetType.L10N:
+			file.asset = L._deserializeLanguage(fs.readJSONFile(file.fileName) as KeyedObject);
+			game.editor.LanguageView.addAssets();
+			break;
 	}
 };
 
 const __onAssetDeleted = (file: FileDesc) => {
 	console.log('deleted: ' + file.fileName);
 	switch (file.assetType) {
-	case AssetType.PREFAB:
-		delete Lib.prefabs[file.assetName];
-		game.editor.ui.refresh();
-		break;
-	case AssetType.SCENE:
-		delete Lib.scenes[file.assetName];
-		game.editor.ui.refresh();
-		break;
-	case AssetType.IMAGE:
-		Lib.__deleteTexture(file.assetName);
-		game.editor.ui.refresh();
-		break;
-	case AssetType.RESOURCE:
-		        if (isAtlasAsset(file.asset)) {
-		            Lib.removeAtlas(file);
-		            game.editor.ui.refresh();
-		        }
-		        break;
-		    case AssetType.FBX:
-		        break;	case AssetType.L10N:
-		game.editor.LanguageView.removeAsset();
-		break;
-	case AssetType.SOUND:
-		Lib.__deleteSound(file as FileDescSound);
-		break;
+		case AssetType.PREFAB:
+			delete Lib.prefabs[file.assetName];
+			game.editor.ui.refresh();
+			break;
+		case AssetType.SCENE:
+			delete Lib.scenes[file.assetName];
+			game.editor.ui.refresh();
+			break;
+		case AssetType.IMAGE:
+			Lib.__deleteTexture(file.assetName);
+			game.editor.ui.refresh();
+			break;
+		case AssetType.RESOURCE:
+			if (isAtlasAsset(file.asset)) {
+				Lib.removeAtlas(file);
+				game.editor.ui.refresh();
+			}
+			break;
+		case AssetType.FBX:
+			break; case AssetType.L10N:
+			game.editor.LanguageView.removeAsset();
+			break;
+		case AssetType.SOUND:
+			Lib.__deleteSound(file as FileDescSound);
+			break;
 	}
 };
 

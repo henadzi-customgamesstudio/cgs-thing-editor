@@ -13,6 +13,9 @@ export default defineConfig({
 	},
 	server: {
 		hmr: false,
+		fs: {
+			allow: ['.', '..'] // Allow serving files from project root and parent
+		},
 		watch: IS_CI_RUN ? {
 			ignored: [
 				'**/**'

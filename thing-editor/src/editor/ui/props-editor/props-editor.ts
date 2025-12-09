@@ -41,8 +41,10 @@ import MovieClip from 'thing-editor/src/engine/lib/assets/src/basic/movie-clip.c
 import Scene from 'thing-editor/src/engine/lib/assets/src/basic/scene.c';
 import { CTRL_READABLE } from 'thing-editor/src/engine/utils/utils';
 import ResourceEditor from './props-editors/resource-editor';
+import VideoEditor from './props-editors/video-editor';
 import FbxEditor from './props-editors/fbx-editor';
 import SpineSequencesEditor from './props-editors/spine-sequences/spine-sequences-editor';
+import VideoSequencesEditor from './props-editors/video-sequences/video-sequences-editor';
 
 let editorProps = {
 	className: 'props-editor window-scrollable-content',
@@ -409,8 +411,8 @@ class PropsEditor extends ComponentDebounced<ClassAttributes<PropsEditor>> {
 						title: CTRL_READABLE + '+click to copy prefab`s name',
 						onMouseDown: copyTextByClick
 					},
-					R.span(null, R.classIcon(getSerializedObjectClass(file.asset)), prefabName),
-					prefabSelectCaret
+						R.span(null, R.classIcon(getSerializedObjectClass(file.asset)), prefabName),
+						prefabSelectCaret
 					), this.onChangePrefabClick, 'Change prefab referenced to', 'change-prefab-button', undefined, !game.__EDITOR_mode),
 					R.btn('Edit prefab', () => {
 						PrefabEditor.editPrefab(prefabName, true);
@@ -444,3 +446,5 @@ PropsEditor.registerRenderer('timeline', TimelineEditor, null);
 PropsEditor.registerRenderer('pow-damp-preset', PowDampPresetEditor, null);
 PropsEditor.registerRenderer('rect', RectEditor, null);
 PropsEditor.registerRenderer('spine-sequence', SpineSequencesEditor, null);
+PropsEditor.registerRenderer('video-sequence', VideoSequencesEditor, null);
+PropsEditor.registerRenderer('video', VideoEditor, null);

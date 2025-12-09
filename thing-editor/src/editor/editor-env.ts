@@ -6,7 +6,7 @@ declare global {
 	type ValuePath = string;
 	type CallBackParsedData = {
 		/** callback path names*/
-		p: (string | { c: string /** child name to getChildByName */})[];
+		p: (string | { c: string /** child name to getChildByName */ })[];
 		/** callback parameter */
 		v?: any[];
 	};
@@ -196,7 +196,7 @@ export type FSCallback = Uint8Array | undefined | import('./fs').FileDesc[] | Pr
 
 export interface ClipboardAsset {
 	name: string;
-	type: import ('./fs').AssetType;
+	type: import('./fs').AssetType;
 	l10n?: L10nEntryAsset;
 	files: string[];
 }
@@ -218,16 +218,19 @@ export interface IEditablePropertyType {
 	'prefab': true;
 	'pow-damp-preset': true;
 	'spine-sequence': true;
+	'video-sequence': true;
 	'number': true;
 	'image': true;
 	'sound': true;
 	'resource': true;
+	'video': true;
+	'fbx': true;
 }
 
 export interface IGoToLabelConsumer {
 	gotoLabel(label: string): void;
 	gotoLabelRecursive(label: string): void;
-	__getLabels():undefined | string[];
+	__getLabels(): undefined | string[];
 }
 
 export type AnyType = any;
@@ -243,6 +246,7 @@ export interface AssetsDescriptor {
 	xmls?: string[];
 	fonts?: string[];
 	sounds: SoundAssetEntry[];
+	videos?: string[];
 	text?: KeyedObject;
 	projectDesc?: ProjectDesc;
 }

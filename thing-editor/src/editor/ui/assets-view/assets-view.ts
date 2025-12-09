@@ -39,6 +39,7 @@ assetsItemsRenderers.set(AssetType.PREFAB, assetItemRendererPrefab as (file: Fil
 assetsItemsRenderers.set(AssetType.BITMAP_FONT, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.RESOURCE, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FBX, assetItemRendererResource as (file: FileDesc) => ComponentChild);
+assetsItemsRenderers.set(AssetType.VIDEO, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FONT, assetItemRendererFont as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.L10N, assetItemRendererL10n as (file: FileDesc) => ComponentChild);
 
@@ -76,6 +77,10 @@ assetTypesIcons.set(AssetType.FBX, R.img({
 	src: './img/asset-resource.png',
 	title: 'Show FBX'
 }));
+assetTypesIcons.set(AssetType.VIDEO, R.img({
+	src: './img/asset-resource.png',
+	title: 'Show Videos'
+}));
 
 let allWindowsIds: string[] = [];
 const additionalWindows = [] as AssetsView[];
@@ -103,7 +108,7 @@ interface AssetsViewState extends WindowState {
 
 export const overrideAssetInProject = (file: FileDesc) => {
 	if (file.lib) {
-		let o!:Container;
+		let o!: Container;
 		if (file.assetType === AssetType.SCENE) {
 			o = Lib.__loadSceneNoInit(file.assetName);
 		} else if (file.assetType === AssetType.PREFAB) {
@@ -479,7 +484,7 @@ export default class AssetsView extends Window<AssetsViewProps, AssetsViewState>
 					this.selectItem(itemElement, ev);
 				} : undefined
 			},
-			items
+				items
 			));
 	}
 

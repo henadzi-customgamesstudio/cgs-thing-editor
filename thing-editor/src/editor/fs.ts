@@ -13,7 +13,7 @@ import { StatusClearingCondition } from './ui/status-clearing-condition';
 import { regeneratePrefabsTypings } from './utils/generate-editor-typings';
 
 
-let wakeLock:WakeLockSentinel | null | true = null;
+let wakeLock: WakeLockSentinel | null | true = null;
 
 interface LibInfo {
 	name: string;
@@ -23,7 +23,7 @@ interface LibInfo {
 	isEmbed?: boolean;
 }
 
-const OVERRIDDEN_ASSETS:Set<string> = new Set();
+const OVERRIDDEN_ASSETS: Set<string> = new Set();
 
 const prefabNameFilter = /[^a-zA-Z\-\/0-9_]/g;
 
@@ -78,12 +78,13 @@ enum AssetType {
 	SCENE = 'SCENE',
 	PREFAB = 'PREFAB',
 	CLASS = 'CLASS',
-	    RESOURCE = 'RESOURCE',
-	    FBX = 'FBX',	BITMAP_FONT = 'BITMAP_FONT',
+	RESOURCE = 'RESOURCE',
+	FBX = 'FBX', BITMAP_FONT = 'BITMAP_FONT',
 	L10N = 'L10N',
 	/** non file asses. Used in enumAssetsPropsRecursive to copy l10n values */
 	L10N_ENTRY = 'L10N_ENTRY',
 	FONT = 'FONT',
+	VIDEO = 'VIDEO'
 }
 
 const AllAssetsTypes: AssetType[] = Object.values(AssetType);
@@ -113,18 +114,21 @@ const ASSETS_PARSERS = {
 	'.s.json': AssetType.SCENE,
 	'.p.json': AssetType.PREFAB,
 	'.l.json': AssetType.L10N,
-	    '.json': AssetType.RESOURCE,
-	    '.fbx': AssetType.FBX,	'.woff': AssetType.FONT,
+	'.json': AssetType.RESOURCE,
+	'.fbx': AssetType.FBX, '.woff': AssetType.FONT,
 	'.woff2': AssetType.FONT,
 	'.wav': AssetType.SOUND,
 	'.xml': AssetType.BITMAP_FONT,
-	'.c.ts': AssetType.CLASS
+	'.c.ts': AssetType.CLASS,
+	'.mp4': AssetType.VIDEO,
+	'.webm': AssetType.VIDEO
 };
 
 const ASSET_TYPE_TO_EXT = {
 	[AssetType.SCENE]: '.s.json',
 	[AssetType.PREFAB]: '.p.json',
-	[AssetType.CLASS]: '.c.ts'
+	[AssetType.CLASS]: '.c.ts',
+	[AssetType.VIDEO]: '.mp4'
 };
 
 const ASSET_EXT_CROP_LENGTHS: Map<AssetType, number> = new Map();
@@ -138,6 +142,7 @@ ASSET_EXT_CROP_LENGTHS.set(AssetType.CLASS, 5);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.RESOURCE, 5);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.FBX, 4);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.BITMAP_FONT, 4);
+ASSET_EXT_CROP_LENGTHS.set(AssetType.VIDEO, 4);
 
 const EMPTY: FileDescImage = {
 	assetName: 'EMPTY',
@@ -279,60 +284,60 @@ export default class fs {
 		}
 	}
 
-	static getLastTouch(file: FileDesc):number {
+	static getLastTouch(file: FileDesc): number {
 		let ret = 0;
 		switch (file.assetType) {
-		case AssetType.CLASS:
-			return 0;
-		case AssetType.SCENE:
-			return Lib.scenes[file.assetName].__lastTouch || 0;
-		case AssetType.PREFAB:
-			return Lib.prefabs[file.assetName].__lastTouch || 0;
-		case AssetType.IMAGE:
-			ret = Lib.getTexture(file.assetName).baseTexture.touched;
-			if (ret === 0) {
-				const images = fs.getAssetsList(AssetType.IMAGE);
-				const src = ((file as FileDescImage).asset.baseTexture.resource as any)?.url;
-				if (src) {
-					for (const image of images) {
-						if (image.asset.baseTexture.resource?.src === src) {
-							ret = Math.max(ret, image.asset.baseTexture.touched);
+			case AssetType.CLASS:
+				return 0;
+			case AssetType.SCENE:
+				return Lib.scenes[file.assetName].__lastTouch || 0;
+			case AssetType.PREFAB:
+				return Lib.prefabs[file.assetName].__lastTouch || 0;
+			case AssetType.IMAGE:
+				ret = Lib.getTexture(file.assetName).baseTexture.touched;
+				if (ret === 0) {
+					const images = fs.getAssetsList(AssetType.IMAGE);
+					const src = ((file as FileDescImage).asset.baseTexture.resource as any)?.url;
+					if (src) {
+						for (const image of images) {
+							if (image.asset.baseTexture.resource?.src === src) {
+								ret = Math.max(ret, image.asset.baseTexture.touched);
+							}
 						}
 					}
+					game.classes.Spine.__touchedSpines.forEach((time, spineName) => {
+						const spine = Lib.resources[spineName];
+						if (spine.spineAtlas.pages.some((page: any) => {
+							return page.baseTexture.resource.src === src;
+						})) {
+							ret = Math.max(ret, time);
+						}
+					});
 				}
-				game.classes.Spine.__touchedSpines.forEach((time, spineName) => {
-					const spine = Lib.resources[spineName];
-					if (spine.spineAtlas.pages.some((page: any) => {
-						return page.baseTexture.resource.src === src;
+				return ret;
+			case AssetType.FONT:
+
+				const fontName = file.assetName.split('/').pop()?.replace(/\.woff2?$/, '').toLocaleLowerCase();
+				const names = Array.from(Text.__touchedFonts.keys()) as string[];
+				for (let k of names) {
+					const a = k.toLocaleLowerCase().split(',');
+					if (a.some((fn) => {
+						return fn.trim() == fontName;
 					})) {
-						ret = Math.max(ret, time);
+						ret = Math.max(ret, Text.__touchedFonts.get(k)!);
 					}
-				});
-			}
-			return ret;
-		case AssetType.FONT:
-
-			const fontName = file.assetName.split('/').pop()?.replace(/\.woff2?$/, '').toLocaleLowerCase();
-			const names = Array.from(Text.__touchedFonts.keys()) as string[];
-			for (let k of names) {
-				const a = k.toLocaleLowerCase().split(',');
-				if (a.some((fn) => {
-					return fn.trim() == fontName;
-				})) {
-					ret = Math.max(ret, Text.__touchedFonts.get(k)!);
 				}
-			}
-			return ret;
+				return ret;
 
-		case AssetType.SOUND:
-			return Lib.getSound(file.assetName).__lastTouch;
-		case AssetType.BITMAP_FONT:
-			const fontTextures = BitmapFont.available[file.assetName.split('/').pop()!].pageTextures;
-			return fontTextures[Object.keys(fontTextures)[0]].baseTexture.touched;
-		        case AssetType.RESOURCE:
-		            return Lib.resources[file.assetName]?.___lastTouch || Number.MAX_SAFE_INTEGER;
-		        case AssetType.FBX:
-		            return Number.MAX_SAFE_INTEGER;			debugger;
+			case AssetType.SOUND:
+				return Lib.getSound(file.assetName).__lastTouch;
+			case AssetType.BITMAP_FONT:
+				const fontTextures = BitmapFont.available[file.assetName.split('/').pop()!].pageTextures;
+				return fontTextures[Object.keys(fontTextures)[0]].baseTexture.touched;
+			case AssetType.RESOURCE:
+				return Lib.resources[file.assetName]?.___lastTouch || Number.MAX_SAFE_INTEGER;
+			case AssetType.FBX:
+				return Number.MAX_SAFE_INTEGER; debugger;
 		}
 		return Number.MAX_SAFE_INTEGER;
 	}
@@ -344,7 +349,7 @@ export default class fs {
 	}
 
 	/** returns new mTime */
-	static writeFile(fileName: string, data: string | ArrayBuffer | KeyedObject, separator:string | null = '	'): number {
+	static writeFile(fileName: string, data: string | ArrayBuffer | KeyedObject, separator: string | null = '	'): number {
 		if (typeof data !== 'string' && !(data instanceof ArrayBuffer)) {
 			data = JSON.stringify(data, fs.fieldsFilter, separator as string);
 		}
@@ -401,15 +406,15 @@ export default class fs {
 					return 'name can not begin or end with "/"';
 				}
 			}).then((newName) => {
-			if (newName) {
-				newName += ext;
-				if (newName !== file.assetName) {
-					const i = file.fileName.lastIndexOf(file.assetName);
-					fs.copyFile(file.fileName, file.fileName.substring(0, i) + newName + file.fileName.substring(i + file.assetName.length));
-					fs.deleteFile(file.fileName);
+				if (newName) {
+					newName += ext;
+					if (newName !== file.assetName) {
+						const i = file.fileName.lastIndexOf(file.assetName);
+						fs.copyFile(file.fileName, file.fileName.substring(0, i) + newName + file.fileName.substring(i + file.assetName.length));
+						fs.deleteFile(file.fileName);
+					}
 				}
-			}
-		});
+			});
 	}
 
 	static copyAssetToProject(file: FileDesc) {
@@ -517,7 +522,7 @@ export default class fs {
 		return execFs('fs/showFile', fileName);
 	}
 
-	static build(projectDir: string, debug: boolean, copyAssets: { from: string; to: string }[], projectDesc:ProjectDesc) {
+	static build(projectDir: string, debug: boolean, copyAssets: { from: string; to: string }[], projectDesc: ProjectDesc) {
 		return execFsAsync('fs/build', projectDir, debug, copyAssets, projectDesc);
 	}
 
@@ -535,14 +540,14 @@ export default class fs {
 		}
 	}
 
-	static async setProgressBar(progress: number, operationName?:string) {
+	static async setProgressBar(progress: number, operationName?: string) {
 		if (progress >= 0) {
 			assert(operationName, 'operationName expected.');
 			if (!wakeLock) {
 				wakeLock = true;
 				try {
 					wakeLock = await navigator.wakeLock.request('screen');
-				} catch (_er) {}
+				} catch (_er) { }
 			}
 		} else {
 			if (wakeLock && wakeLock !== true) {
@@ -574,6 +579,7 @@ export default class fs {
 
 		const lib: LibInfo | null = game.editor.currentProjectLibs.find(l => l.assetsDir === dirName) || null;
 		const files = execFs('fs/readDir', dirName, game.editor.projectDesc as any) as FileDesc[];
+
 		return files.filter((file) => {
 			const wrongSymbol = fs.getWrongSymbol(file.fileName);
 			if (wrongSymbol) {
