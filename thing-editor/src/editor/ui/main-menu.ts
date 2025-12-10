@@ -262,7 +262,7 @@ const MAIN_MENU: MainMenuItem[] = [
 			},
 			{
 				name: 'Open dev tools',
-				hotkey: {key: 'F12'},
+				hotkey: { key: 'F12' },
 				onClick: () => {
 					fs.openDevTools();
 				}
@@ -279,7 +279,7 @@ const MAIN_MENU: MainMenuItem[] = [
 			},
 			{
 				name: 'Show ruler',
-				hotkey: {key: 'r', altKey: true},
+				hotkey: { key: 'r', altKey: true },
 				onClick: async () => {
 					const overlay = (await import('thing-editor/src/editor/ui/editor-overlay')).default;
 					const ruler = overlay.getChildByName('___system/ruler') as ___Ruler;
@@ -297,6 +297,25 @@ const MAIN_MENU: MainMenuItem[] = [
 				hotkey: { key: '0', ctrlKey: true },
 				onClick: () => {
 					game.editor.ui.viewport.fitToScreen();
+				}
+			}
+		]
+	},
+	{
+		name: 'CGS',
+		id: 'cgs',
+		items: [
+			{
+				name: 'Make Images Even',
+				tip: 'Adds transparent pixel to images with odd dimensions.',
+				onClick: async () => {
+					if (await fs.showQuestion('Processing Images', 'This will scan all images in the project and add a transparent pixel to right/bottom if dimensions are odd. Continue?', 'Yes', 'No') === 0) {
+						const result = await fs.run('scripts/run_python.cjs', 'scripts/make_images_even.py', game.editor.currentProjectDir);
+						if (result) {
+							game.editor.ui.modal.notify('Image processing finished.');
+							fs.refreshAssetsList();
+						}
+					}
 				}
 			}
 		]
@@ -353,13 +372,13 @@ export default class MainMenu extends Component {
 						}
 					}
 				},
-				R.btn(menuItem.name, (ev: PointerEvent) => {
-					if (toggleContextMenu(menuItem.items, ev)) {
-						(ev.target as HTMLElement).focus();
-					} else {
-						(ev.target as HTMLElement).blur();
-					}
-				}, 'menu item id: ' + menuItem.id));
+					R.btn(menuItem.name, (ev: PointerEvent) => {
+						if (toggleContextMenu(menuItem.items, ev)) {
+							(ev.target as HTMLElement).focus();
+						} else {
+							(ev.target as HTMLElement).blur();
+						}
+					}, 'menu item id: ' + menuItem.id));
 			}));
 	}
 
