@@ -81,7 +81,7 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
         this.blendMode = val;
     }
 
-    @editable({ type: 'string', important: true })
+    @editable({ type: 'video', important: true })
     get videoSrc(): string {
         return this._videoSrc;
     }
@@ -275,22 +275,18 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
 
         if (!this._videoSrc) return;
 
-        // Создаем video элемент
-        const video = document.createElement('video');
+        const resolvedSrc = Lib.resolveVideoSrc(this._videoSrc);
+        const preloaded = Lib.getPreloadedVideo(resolvedSrc);
+
+        // Создаем video элемент (или клон уже предзагруженного)
+        const video = preloaded ? preloaded.cloneNode(true) as HTMLVideoElement : document.createElement('video');
         video.crossOrigin = 'anonymous';
         video.muted = true; // Мьютим для автовоспроизведения
         video.playsInline = true;
         video.preload = 'auto';
         video.autoplay = false; // Мы управляем воспроизведением сами
 
-        // Формируем путь к видео
-        let src = this._videoSrc;
-        if (!src.startsWith('http') && !src.startsWith('/')) {
-            // Lib.ASSETS_ROOT = "./assets/" для текущего проекта
-            src = Lib.ASSETS_ROOT + src;
-        }
-
-        video.src = src;
+        video.src = resolvedSrc;
 
         this._videoElement = video;
 
@@ -530,18 +526,16 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
         if (item.___videoElement) return;
 
         return new Promise((resolve, reject) => {
-            const video = document.createElement('video');
+            const resolvedSrc = Lib.resolveVideoSrc(item.videoSrc);
+            const preloaded = Lib.getPreloadedVideo(resolvedSrc);
+            const video = preloaded ? preloaded.cloneNode(true) as HTMLVideoElement : document.createElement('video');
             video.crossOrigin = 'anonymous';
             video.muted = true;
             video.playsInline = true;
             video.preload = 'auto';
             video.autoplay = false;
 
-            let src = item.videoSrc;
-            if (!src.startsWith('http') && !src.startsWith('/')) {
-                src = Lib.ASSETS_ROOT + src;
-            }
-            video.src = src;
+            video.src = resolvedSrc;
 
             const onCanPlay = () => {
                 const texture = Texture.from(video, {
@@ -554,8 +548,8 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
 
             video.addEventListener('canplaythrough', onCanPlay, { once: true });
             video.addEventListener('error', () => {
-                console.error('VideoMovieClip: Failed to load video:', src);
-                reject(new Error('Failed to load: ' + src));
+                console.error('VideoMovieClip: Failed to load video:', resolvedSrc);
+                reject(new Error('Failed to load: ' + resolvedSrc));
             }, { once: true });
             video.load();
         });

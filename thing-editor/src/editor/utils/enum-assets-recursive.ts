@@ -66,6 +66,16 @@ const enumAssetsPropsRecursive = (o: SerializedObject, ret: Set<FileDesc>) => {
 				if (Lib.hasSound(soundName)) {
 					addSoundToAssetsList(soundName, ret);
 				}
+			} else if (field.type === 'video') {
+				let videoName = o.p[field.name];
+				if (videoName) {
+					// Logic similar to other assets: find file and add to ret
+					// We need a helper or direct fs call. simpler to use existing pattern.
+					const file = fs.getFileByAssetName(videoName, AssetType.VIDEO);
+					if (file) {
+						ret.add(file);
+					}
+				}
 			} else if (field.type === 'callback') {
 				let action = o.p[field.name];
 				if (action && action.indexOf(',') > 0) {
@@ -92,7 +102,7 @@ const enumAssetsPropsRecursive = (o: SerializedObject, ret: Set<FileDesc>) => {
 						array.push(prefix);
 					}
 
-					ret.add({assetType: AssetType.L10N_ENTRY, asset: array, assetName: key, fileName: '', mTime: 0, lib: null});
+					ret.add({ assetType: AssetType.L10N_ENTRY, asset: array, assetName: key, fileName: '', mTime: 0, lib: null });
 				}
 			}
 		}

@@ -38,6 +38,7 @@ let prefabs: KeyedMap<SerializedObject> = {};
 let staticScenes: KeyedMap<Scene> = {};
 let textures: KeyedMap<Texture> = {};
 let soundsHowlers: KeyedMap<HowlSound> = {};
+const preloadedVideoElements: Map<string, HTMLVideoElement> = new Map();
 
 const removeHoldersToCleanup: RemoveHolder[] = [];
 
@@ -84,6 +85,7 @@ export default class Lib
 {
 
 	static ASSETS_ROOT = './assets/';
+	static __videoPreloadPromise: Promise<void> | null = null;
 
 	static sounds: KeyedMap<HowlSound>;
 
@@ -452,6 +454,65 @@ export default class Lib
 		Lib.videos[name] = url;
 	}
 
+	static resolveVideoSrc(rawSrc: string): string {
+		let src = rawSrc;
+		const extIndex = src.lastIndexOf('.');
+		const ext = extIndex >= 0 ? src.substring(extIndex) : '';
+		const nameWithoutExt = extIndex >= 0 ? src.substring(0, extIndex) : src;
+
+		if (Lib.videos[src]) {
+			src = Lib.videos[src];
+		} else if (Lib.videos[nameWithoutExt]) {
+			src = Lib.videos[nameWithoutExt];
+		} else if (!src.startsWith('http') && !src.startsWith('/')) {
+			src = Lib.ASSETS_ROOT + src;
+		}
+
+		if (ext && !src.endsWith(ext) && !src.includes('?')) {
+			src += ext;
+		}
+
+		return src;
+	}
+
+	static getPreloadedVideo(src: string): HTMLVideoElement | undefined {
+		return preloadedVideoElements.get(src);
+	}
+
+	static async preloadVideos(videoNames: string[]): Promise<void> {
+		if (typeof document === 'undefined') return;
+		const uniqueSrcs = new Set<string>();
+		for (const videoName of videoNames) {
+			uniqueSrcs.add(Lib.resolveVideoSrc(videoName));
+		}
+
+		await Promise.all(Array.from(uniqueSrcs).map(src => {
+			if (preloadedVideoElements.has(src)) return Promise.resolve();
+
+			return new Promise<void>((resolve, reject) => {
+				const video = document.createElement('video');
+				video.crossOrigin = 'anonymous';
+				video.muted = true;
+				video.playsInline = true;
+				video.preload = 'auto';
+				video.autoplay = false;
+				video.src = src;
+
+				video.addEventListener('canplaythrough', () => {
+					preloadedVideoElements.set(src, video);
+					resolve();
+				}, { once: true });
+
+				video.addEventListener('error', () => {
+					console.error('Lib.preloadVideos: Failed to load video:', src);
+					reject(new Error('Failed to load video: ' + src));
+				}, { once: true });
+
+				video.load();
+			});
+		}));
+	}
+
 
 	static preloadSound(soundId: string | null
 		/// #if EDITOR
@@ -650,9 +711,43 @@ export default class Lib
 		}
 
 		if (data.videos) {
+			console.error('Lib.addAssets: Registering videos:', data.videos);
+			// alert('Lib.addAssets: ' + data.videos.length + ' videos');
 			for (const videoName of data.videos) {
-				Lib.addVideo(Lib.unHashFileName(videoName, assetsRoot), assetsRoot + videoName);
+				const underscoreIndex = videoName.lastIndexOf('_');
+
+				// Try to determine extension; hashed videos come without it in the manifest
+				const knownExtensions = ['.mp4', '.webm'];
+				const extFromName = knownExtensions.find(ext => videoName.endsWith(ext)) || '';
+				// When there is a dot right before the hash (char6._xxxx) it is a webm, otherwise mp4
+				const ext = extFromName || (videoName[underscoreIndex - 1] === '.' ? '.webm' : '.mp4');
+
+				if (underscoreIndex > 0) {
+					// Strip trailing dot that belongs to the original extension before the hash
+					const baseName = videoName.substring(0, underscoreIndex).replace(/\.$/, '');
+					const keyWithExt = baseName + ext;
+					const val = assetsRoot + videoName + (extFromName ? '' : ext);
+					console.error(`Lib.addAssets: Adding video key='${keyWithExt}' val='${val}'`);
+					Lib.addVideo(baseName, val); // for lookups without extension
+					Lib.addVideo(keyWithExt, val); // for lookups with extension
+				} else {
+					console.error(`Lib.addAssets: Adding unhashed video '${videoName}'`);
+					const unhashedName = Lib.unHashFileName(videoName, assetsRoot);
+					const val = assetsRoot + videoName + (extFromName ? '' : ext);
+					Lib.addVideo(unhashedName.replace(/\.$/, ''), val);
+					Lib.addVideo(unhashedName.replace(/\.$/, '') + ext, val);
+				}
 			}
+			if (!Lib.__videoPreloadPromise && typeof document !== 'undefined') {
+				game.loadingAdd('video-preload');
+				Lib.__videoPreloadPromise = Lib.preloadVideos(data.videos).catch((er) => {
+					console.error('Lib.preloadVideos failed:', er);
+				}).finally(() => {
+					game.loadingRemove('video-preload');
+				});
+			}
+		} else {
+			console.error('Lib.addAssets: data.videos is MISSING or EMPTY');
 		}
 
 	}
