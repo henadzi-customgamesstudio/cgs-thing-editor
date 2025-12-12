@@ -95,14 +95,14 @@ export default class Spawner extends Container {
 		/// #endif
 	}
 
-	spawn() {
+	protected validateSpawn(): boolean {
 		/// #if EDITOR
 		if (!this.prefabToSpawn) {
 			game.editor.ui.status.error('Prefab to spawn is not selected.', 32005, this, 'prefabToSpawn');
-			return;
+			return false;
 		} else if (!Lib.hasPrefab(this.prefabToSpawn)) {
 			game.editor.ui.status.error('Prefab with name "' + this.prefabToSpawn + '" is not exists.', 32006, this, 'prefabToSpawn');
-			return;
+			return false;
 		}
 		/// #endif
 		if (!this._container) {
@@ -112,27 +112,41 @@ export default class Spawner extends Container {
 		if (this.___containerID !== this._container!.___id) {
 			game.editor.ui.status.error('Spawner\'s target container has been removed. Please disable spawner before removing target container or use not removable target container.', 32056, this, 'container');
 			this.disable();
-			return;
+			return false;
 		}
 		if (this._container?.worldTransform.a === 0 || this._container?.worldTransform.d === 0) {
 			game.editor.ui.status.error('Spawner\'s target container has zero scale. Impossible to calculate target point.', 99999, this, 'container');
 			this.disable();
-			return;
+			return false;
 		}
 		/// #endif
+		return true;
+	}
 
-		let o = Lib.loadPrefab(this.prefabToSpawn);
+	protected getLocalSpawnPosition(resultPoint: Point) {
+		resultPoint.x = 0;
+		resultPoint.y = 0;
+	}
+
+	spawn() {
+		if (!this.validateSpawn()) {
+			return;
+		}
+
+		let o = Lib.loadPrefab(this.prefabToSpawn!);
 		if (this.applyRotation) {
 			o.rotation = this.getGlobalRotation();
 		}
 
 
 		this._container!.addChild(o);
+		this.getLocalSpawnPosition(zeroPoint);
 		o.parent.toLocal(zeroPoint, this, o);
 
 		if (this.speed !== 0 || this.speedRandom !== 0) {
 			let sp = this.speed + Math.random() * this.speedRandom;
-			spawnPoint.x = sp;
+			spawnPoint.x = zeroPoint.x + sp;
+			spawnPoint.y = zeroPoint.y;
 			o.parent.toLocal(spawnPoint, this, spawnPointRet, true);
 			(o as DSprite).xSpeed = spawnPointRet.x - o.x;
 			(o as DSprite).ySpeed = spawnPointRet.y - o.y;
