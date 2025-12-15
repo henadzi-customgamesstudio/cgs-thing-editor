@@ -1,11 +1,10 @@
-import { Texture } from 'pixi.js';
-import editable from 'thing-editor/src/editor/props-editor/editable';
+import { Rectangle, Texture } from 'pixi.js';
 import type { IGoToLabelConsumer } from 'thing-editor/src/editor/editor-env';
+import editable from 'thing-editor/src/editor/props-editor/editable';
 import assert from 'thing-editor/src/engine/debug/assert';
 import Lib from 'thing-editor/src/engine/lib';
 import DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
 import callByPath from 'thing-editor/src/engine/utils/call-by-path';
-
 
 
 /**
@@ -301,12 +300,27 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
             console.warn('Убедитесь, что файл видео включен в сборку (например, находится в папке public или скопирован в dist/assets).');
         };
 
-        // Ждем готовности первого кадра
-        const onCanPlay = () => {
-            if (!this._videoTexture && this._videoElement) {
-                // Создаем текстуру из видео
-                // Отключаем автовоспроизведение PIXI, так как мы управляем временем сами
-                this._videoTexture = Texture.from(video, { resourceOptions: { autoPlay: false, updateFPS: 0 } });
+    	// Ждем готовности первого кадра
+    	const onCanPlay = () => {
+    		if (!this._videoTexture && this._videoElement) {
+    			// Создаем текстуру из видео
+    			// Отключаем автовоспроизведение PIXI, так как мы управляем временем сами
+    			const sourceTexture = Texture.from(video, { resourceOptions: { autoPlay: false, updateFPS: 0 } });
+
+    			if (this.sideBySideAlpha && sourceTexture.baseTexture) {
+    				const base = sourceTexture.baseTexture;
+    				const w = base.width / 2;
+    				const h = base.height;
+
+    				this._videoTexture = new Texture(
+    					base,
+    					new Rectangle(0, 0, w, h),
+    					new Rectangle(0, 0, w, h),
+    					new Rectangle(0, 0, w, h)
+    				);
+    			} else {
+    				this._videoTexture = sourceTexture;
+    			}
 
                 this.texture = this._videoTexture;
 
@@ -541,8 +555,22 @@ export default class VideoMovieClip extends DSprite implements IGoToLabelConsume
                 const texture = Texture.from(video, {
                     resourceOptions: { autoPlay: false, updateFPS: 0 }
                 });
+                let finalTexture = texture;
+
+    			if (this.sideBySideAlpha && texture.baseTexture) {
+    				const base = texture.baseTexture;
+    				const w = base.width / 2;
+    				const h = base.height;
+
+    				finalTexture = new Texture(
+    					base,
+    					new Rectangle(0, 0, w, h),
+    					new Rectangle(0, 0, w, h),
+    					new Rectangle(0, 0, w, h)
+    				);
+    			}
                 item.___videoElement = video;
-                item.___videoTexture = texture;
+                item.___videoTexture = finalTexture;
                 resolve();
             };
 
