@@ -2,7 +2,7 @@ import { Container, Point } from 'pixi.js';
 import editable from 'thing-editor/src/editor/props-editor/editable';
 import game from 'thing-editor/src/engine/game';
 import Lib from 'thing-editor/src/engine/lib';
-import type DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
+import DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
 import getValueByPath from 'thing-editor/src/engine/utils/get-value-by-path';
 
 const zeroPoint = new Point();
@@ -35,6 +35,12 @@ export default class Spawner extends Container {
 
 	@editable({ type: 'ref' })
 	_container: Container | null = null;
+
+	@editable({ tip: 'Apply tint color to spawned DSprites and their descendants' })
+	applyTint = false;
+
+	@editable({ type: 'color', visible: (o: Spawner) => o.applyTint, default: 0xFFFFFF, tip: 'Tint color for DSprites and their descendants' })
+	spawnTint = 0xFFFFFF;
 
 	curInterval = 0;
 
@@ -138,6 +144,9 @@ export default class Spawner extends Container {
 			o.rotation = this.getGlobalRotation();
 		}
 
+		if (this.applyTint) {
+			this.applyTintToSprites(o);
+		}
 
 		this._container!.addChild(o);
 		this.getLocalSpawnPosition(zeroPoint);
@@ -150,6 +159,24 @@ export default class Spawner extends Container {
 			o.parent.toLocal(spawnPoint, this, spawnPointRet, true);
 			(o as DSprite).xSpeed = spawnPointRet.x - o.x;
 			(o as DSprite).ySpeed = spawnPointRet.y - o.y;
+		}
+	}
+
+	protected applyTintToSprites(root: Container) {
+		if (!root) {
+			return;
+		}
+		const stack: Container[] = [root];
+		while (stack.length) {
+			const node = stack.pop()!;
+			if (node instanceof DSprite) {
+				node.tint = this.spawnTint;
+			}
+			for (const child of node.children) {
+				if (child instanceof Container) {
+					stack.push(child);
+				}
+			}
 		}
 	}
 
