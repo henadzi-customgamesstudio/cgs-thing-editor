@@ -84,6 +84,7 @@ const resolutions: ViewportSizeItem[] = [
 	{ name: 'Pixel 2 XL', value: { w: 823, h: 411 } },
 	{ name: 'iPhone 8', value: { w: 667, h: 375 } },
 	{ name: 'iPhone X', value: { w: 812, h: 375 } },
+	{ name: 'iPhone 14/15 Pro Max', value: { w: 932, h: 430 } },
 	{ name: 'iPad', value: { w: 1024, h: 768 } }
 ];
 
