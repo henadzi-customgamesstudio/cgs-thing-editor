@@ -35,6 +35,9 @@ export default class Label extends Text {
 	@editable({ min: 0, max: 20, visible: (node: Label) => { return node.isNumeric; } })
 	decimalsCount = 0;
 
+	@editable({ visible: (node: Label) => { return node.isNumeric && node.decimalsCount > 0; }, tip: 'Decimal separator character. Default is "."' })
+	decimalSeparator = '.';
+
 	@editable({ type: 'callback' })
 	onChanged: string | null = null;
 
@@ -160,6 +163,9 @@ export default class Label extends Text {
 				val = '+' + Label.formatMoney(this.showedVal, this.decimalsCount);
 			} else {
 				val = Label.formatMoney(this.showedVal, this.decimalsCount);
+			}
+			if (this.decimalSeparator !== '.') {
+				val = val.replace('.', this.decimalSeparator);
 			}
 
 		} else {
