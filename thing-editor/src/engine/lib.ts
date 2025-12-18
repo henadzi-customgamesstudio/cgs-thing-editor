@@ -1213,7 +1213,7 @@ const getVersionedFileName = (file: FileDesc) => {
 export const EMPTY_NODE_EXTEND_DATA: NodeExtendData = { objectDeleted: 'Container was deleted and it`s extend data replaced with temporary object.' };
 Object.freeze(EMPTY_NODE_EXTEND_DATA);
 
-export { __onAssetAdded, __onAssetDeleted, __onAssetUpdated, constructRecursive };
+export { __onAssetAdded, __onAssetDeleted, __onAssetUpdated };
 
 const isAtlasAsset = (asset: any) => {
 	return asset?.meta?.scale || asset?.skeleton;
@@ -1459,6 +1459,6 @@ const _filterStaticTriggersRecursive = (data: SerializedObject) => {
 	}
 };
 
-export { isAtlasAsset, removeHoldersToCleanup };
+export { isAtlasAsset, removeHoldersToCleanup, constructRecursive };
 
 Lib.sounds = soundsHowlers;
