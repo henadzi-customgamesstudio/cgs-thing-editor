@@ -1,4 +1,3 @@
-
 import type { DisplayObject, Sprite } from 'pixi.js';
 import { Container, NineSlicePlane, Point } from 'pixi.js';
 import editable from 'thing-editor/src/editor/props-editor/editable';
@@ -11,14 +10,27 @@ import { stepTo } from 'thing-editor/src/engine/utils/utils';
 
 const tmpPoint = new Point();
 
+const VERTICAL = 'vertical';
+const HORIZONTAL = 'horizontal';
 
-function setObjectHeight(node: DisplayObject, height: number) {
-	if (node instanceof Shape || node instanceof NineSlicePlane) { //prevent wrong size in next life of "bar" sprite instance
-		node.height = height;
+function setObjectDimension(node: DisplayObject, size: number, isHorizontal: boolean) {
+	if (node instanceof Shape || node instanceof NineSlicePlane) { 
+		if (isHorizontal) {
+			node.width = size;
+		} else {
+			node.height = size;
+		}
 	} else if ((node as Sprite).texture) {
-		node.scale.y = height / (node as Sprite).texture.height;
-		if (game.classes.Fill && (node instanceof game.classes.Fill)) {
-			(node as any).yRepeat = node.scale.y;
+		if (isHorizontal) {
+			node.scale.x = size / (node as Sprite).texture.width;
+			if (game.classes.Fill && (node instanceof game.classes.Fill)) {
+				(node as any).xRepeat = node.scale.x;
+			}
+		} else {
+			node.scale.y = size / (node as Sprite).texture.height;
+			if (game.classes.Fill && (node instanceof game.classes.Fill)) {
+				(node as any).yRepeat = node.scale.y;
+			}
 		}
 	}
 }
@@ -30,7 +42,36 @@ Use '#' to access to child scene nodes by name: <b>game.currentScene.#myChildEle
 
 export default class ProgressBar extends Container {
 
-	@editable({ name: 'height', type: 'number', min: 0, default: 200 })
+	@editable({ 
+		type: 'string', 
+		select: [
+			{ name: 'Vertical', value: VERTICAL },
+			{ name: 'Horizontal', value: HORIZONTAL }
+		], 
+		default: VERTICAL,
+		important: true
+	})
+	orientation = VERTICAL;
+
+	@editable({ name: 'width', type: 'number', min: 0, default: 200, visible: (o: ProgressBar) => o.orientation === HORIZONTAL })
+	get width() { return this._progress_bar_width; }
+	set width(v) {
+		this._progress_bar_width = v;
+		if (this.orientation === HORIZONTAL) {
+			this.applyValue(this.showedVal || 0);
+			this._applyBgDimension();
+		}
+	}
+
+	@editable({ name: 'height', type: 'number', min: 0, default: 200, visible: (o: ProgressBar) => o.orientation === VERTICAL })
+	get height() { return this._progress_bar_height; }
+	set height(v) {
+		this._progress_bar_height = v;
+		if (this.orientation === VERTICAL) {
+			this.applyValue(this.showedVal || 0);
+			this._applyBgDimension();
+		}
+	}
 
 	@editable({ type: 'data-path', important: true, tip: TIP })
 	dataPath = null;
@@ -91,6 +132,9 @@ export default class ProgressBar extends Container {
 	private currentQ = 0;
 	private targetQ = 0;
 
+	private _progress_bar_width = 200;
+	private _progress_bar_height = 200;
+
 	init() {
 		super.init();
 		this.scrolling = false;
@@ -102,7 +146,7 @@ export default class ProgressBar extends Container {
 
 		this.cursor = this.interactive ? 'pointer' : '';
 		this.on('pointerdown', this.onDown);
-		this._applyBgHeight();
+		this._applyBgDimension();
 		this.isProgressFinished = false;
 	}
 
@@ -111,34 +155,28 @@ export default class ProgressBar extends Container {
 		this.cap = this.findChildByName('cap');
 	}
 
-	_progress_bar_height = 200;
-
-	get height() {
-		return this._progress_bar_height;
+	private get currentLength(): number {
+		return this.orientation === HORIZONTAL ? this._progress_bar_width : this._progress_bar_height;
 	}
 
-	set height(v) {
-		if (this._progress_bar_height !== v) {
-			this._progress_bar_height = v;
-			this.applyValue(this.showedVal || 0);
-			this._applyBgHeight();
-		}
-	}
+	_applyBgDimension() {
+		const isHorizontal = this.orientation === HORIZONTAL;
+		const length = this.currentLength;
 
-	_applyBgHeight() {
 		let h = this.getChildByName('bg');
 		if (h) {
-			setObjectHeight(h, this._progress_bar_height!);
+			setObjectDimension(h, length, isHorizontal);
 		}
+		
 		const hitArea = this.findChildByName('hit-area');
 		if (hitArea) {
-			setObjectHeight(hitArea, this._progress_bar_height! + hitArea.y * -2);
+			const offset = isHorizontal ? hitArea.x : hitArea.y;
+			setObjectDimension(hitArea, length + offset * -2, isHorizontal);
 		}
 	}
 
 	onRemove() {
 		super.onRemove();
-		this._progress_bar_height = 0;
 		this.currentQ = 0;
 		this.showedVal = undefined;
 		this.bar = undefined;
@@ -165,12 +203,20 @@ export default class ProgressBar extends Container {
 		if (this.scrolling) {
 			if (game.mouse.click) {
 				let p = this.toLocal(game.mouse, game.stage, tmpPoint, true);
-				let q = p.y / this._progress_bar_height!;
+				
+				let q = 0;
+				if (this.orientation === HORIZONTAL) {
+					q = p.x / this._progress_bar_width;
+				} else {
+					q = p.y / this._progress_bar_height;
+				}
+
 				if (q < 0) {
 					q = 0;
 				} else if (q > 1) {
 					q = 1;
 				}
+				
 				let val = this.min + q * (this.max - this.min);
 				if (this.step > 0) {
 					val = Math.round(val / this.step) * this.step;
@@ -252,12 +298,22 @@ export default class ProgressBar extends Container {
 		/// #endif
 
 		const q = this.reverse ? (1 - this.currentQ) : this.currentQ;
+		const isHorizontal = this.orientation === HORIZONTAL;
+		const length = this.currentLength;
+
 		if (this.bar) {
-			setObjectHeight(this.bar, this._progress_bar_height * q);
+			setObjectDimension(this.bar, length * q, isHorizontal);
 		}
+		
 		if (this.cap) {
-			this.cap.y = this.capMargin + (this._progress_bar_height - this.capMargin * 2) * q;
+			const pos = this.capMargin + (length - this.capMargin * 2) * q;
+			if (isHorizontal) {
+				this.cap.x = pos;
+			} else {
+				this.cap.y = pos;
+			}
 		}
+		
 		/// #if EDITOR
 		if (game.__EDITOR_mode) {
 			this.bar = undefined;
@@ -273,10 +329,11 @@ export default class ProgressBar extends Container {
 	/// #if EDITOR
 	__beforeDeserialization() {
 		this._progress_bar_height = 0;
+		this._progress_bar_width = 0;
 	}
 
 	__afterDeserialization() {
-		this._applyBgHeight();
+		this._applyBgDimension();
 	}
 	/// #endif
 }
