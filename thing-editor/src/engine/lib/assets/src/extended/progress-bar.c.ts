@@ -14,7 +14,7 @@ const VERTICAL = 'vertical';
 const HORIZONTAL = 'horizontal';
 
 function setObjectDimension(node: DisplayObject, size: number, isHorizontal: boolean) {
-	if (node instanceof Shape || node instanceof NineSlicePlane) { 
+	if (node instanceof Shape || node instanceof NineSlicePlane) {
 		if (isHorizontal) {
 			node.width = size;
 		} else {
@@ -42,15 +42,7 @@ Use '#' to access to child scene nodes by name: <b>game.currentScene.#myChildEle
 
 export default class ProgressBar extends Container {
 
-	@editable({ 
-		type: 'string', 
-		select: [
-			{ name: 'Vertical', value: VERTICAL },
-			{ name: 'Horizontal', value: HORIZONTAL }
-		], 
-		default: VERTICAL,
-		important: true
-	})
+	@editable({ type: 'string', select: [{ name: 'Vertical', value: VERTICAL }, { name: 'Horizontal', value: HORIZONTAL }], default: VERTICAL, })
 	orientation = VERTICAL;
 
 	@editable({ name: 'width', type: 'number', min: 0, default: 200, visible: (o: ProgressBar) => o.orientation === HORIZONTAL })
@@ -124,7 +116,7 @@ export default class ProgressBar extends Container {
 
 	currentInterval = 0;
 
-	@editable({disabled: () => true, visible: () => !game.__EDITOR_mode, type: 'ref'})
+	@editable({ disabled: () => true, visible: () => !game.__EDITOR_mode, type: 'ref' })
 	showedVal: any = undefined;
 
 	isProgressFinished = true;
@@ -167,7 +159,7 @@ export default class ProgressBar extends Container {
 		if (h) {
 			setObjectDimension(h, length, isHorizontal);
 		}
-		
+
 		const hitArea = this.findChildByName('hit-area');
 		if (hitArea) {
 			const offset = isHorizontal ? hitArea.x : hitArea.y;
@@ -203,7 +195,7 @@ export default class ProgressBar extends Container {
 		if (this.scrolling) {
 			if (game.mouse.click) {
 				let p = this.toLocal(game.mouse, game.stage, tmpPoint, true);
-				
+
 				let q = 0;
 				if (this.orientation === HORIZONTAL) {
 					q = p.x / this._progress_bar_width;
@@ -216,7 +208,7 @@ export default class ProgressBar extends Container {
 				} else if (q > 1) {
 					q = 1;
 				}
-				
+
 				let val = this.min + q * (this.max - this.min);
 				if (this.step > 0) {
 					val = Math.round(val / this.step) * this.step;
@@ -304,7 +296,7 @@ export default class ProgressBar extends Container {
 		if (this.bar) {
 			setObjectDimension(this.bar, length * q, isHorizontal);
 		}
-		
+
 		if (this.cap) {
 			const pos = this.capMargin + (length - this.capMargin * 2) * q;
 			if (isHorizontal) {
@@ -313,7 +305,7 @@ export default class ProgressBar extends Container {
 				this.cap.y = pos;
 			}
 		}
-		
+
 		/// #if EDITOR
 		if (game.__EDITOR_mode) {
 			this.bar = undefined;
