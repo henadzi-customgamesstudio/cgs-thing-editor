@@ -468,7 +468,10 @@ export default class Lib
 			src = Lib.ASSETS_ROOT + src;
 		}
 
-		if (ext && !src.endsWith(ext) && !src.includes('?')) {
+		// Only append extension if the resolved path doesn't already have a known video extension
+		const knownVideoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv'];
+		const hasKnownExtension = knownVideoExtensions.some(videoExt => src.endsWith(videoExt));
+		if (ext && !hasKnownExtension && !src.includes('?')) {
 			src += ext;
 		}
 
@@ -1255,7 +1258,13 @@ const __onAssetAdded = (file: FileDesc) => {
 			game.editor.LanguageView.addAssets();
 			break;
 		case AssetType.VIDEO:
+			// Register video with base name
 			Lib.addVideo(file.assetName, file.fileName);
+			// Also register with explicit extensions for format fallback support
+			const baseNameForVideo = file.assetName.replace(/\.$/, ''); // Remove trailing dot if present
+			const videoExt = file.fileName.endsWith('.webm') ? '.webm' : '.mp4';
+			Lib.addVideo(baseNameForVideo, file.fileName);
+			Lib.addVideo(baseNameForVideo + videoExt, file.fileName);
 			break;
 	}
 };
