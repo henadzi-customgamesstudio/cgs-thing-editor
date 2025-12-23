@@ -2,11 +2,13 @@
 *.aac
 
 node_modules
+.DS_Store
 
 *.config.js.timestamp-*.mjs
 
 /games
 /libs
+.idea
 
 /thing-editor/src/editor/localization-typings.ts
 /thing-editor/src/editor/schema-thing-project.json
