@@ -1,8 +1,11 @@
 import { Graphics, Point } from 'pixi.js';
 import editable from 'thing-editor/src/editor/props-editor/editable';
-import Spawner from './spawner.c';
+import ParticleSpawner from './particle-spawner.c';
 
-export default class SpawnerLine extends Spawner {
+/**
+ * Spawner that spawns ParticleShort-based prefabs randomly along a line (Y-axis).
+ */
+export default class ParticleSpawnerLine extends ParticleSpawner {
 
     @editable({ min: 0, default: 100 })
     length = 100;
@@ -21,6 +24,6 @@ export default class SpawnerLine extends Spawner {
     /// #endif
 }
 /// #if EDITOR
-SpawnerLine.__EDITOR_icon = 'tree/spawner';
-SpawnerLine.__EDITOR_tip = '<b>SpawnerLine</b> - Spawns prefabs randomly along a line (Y-axis). The <b>Speed</b> property propels objects along the X-axis (forward).';
+ParticleSpawnerLine.__EDITOR_icon = 'tree/spawner';
+ParticleSpawnerLine.__EDITOR_tip = '<b>ParticleSpawnerLine</b> - Spawns particle prefabs randomly along a line (Y-axis). The <b>Speed</b> property propels objects along the X-axis (forward).';
 /// #endif

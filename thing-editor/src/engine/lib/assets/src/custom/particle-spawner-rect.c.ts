@@ -1,8 +1,11 @@
 import { Graphics, Point } from 'pixi.js';
 import editable from 'thing-editor/src/editor/props-editor/editable';
-import Spawner from './spawner.c';
+import ParticleSpawner from './particle-spawner.c';
 
-export default class SpawnerRect extends Spawner {
+/**
+ * Spawner that spawns ParticleShort-based prefabs randomly inside a rectangle.
+ */
+export default class ParticleSpawnerRect extends ParticleSpawner {
 
     @editable({ min: 0, default: 100 })
     rectWidth = 100;
@@ -25,6 +28,6 @@ export default class SpawnerRect extends Spawner {
     /// #endif
 }
 /// #if EDITOR
-SpawnerRect.__EDITOR_icon = 'tree/spawner';
-SpawnerRect.__EDITOR_tip = '<b>SpawnerRect</b> - Spawns objects randomly inside a rectangle.<br><b>Speed</b> propels objects along the X-axis.';
+ParticleSpawnerRect.__EDITOR_icon = 'tree/spawner';
+ParticleSpawnerRect.__EDITOR_tip = '<b>ParticleSpawnerRect</b> - Spawns particle prefabs randomly inside a rectangle.<br><b>Speed</b> propels objects along the X-axis.';
 /// #endif

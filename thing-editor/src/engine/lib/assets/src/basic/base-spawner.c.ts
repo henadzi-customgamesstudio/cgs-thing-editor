@@ -1,0 +1,219 @@
+import { Container, Point } from 'pixi.js';
+import editable from 'thing-editor/src/editor/props-editor/editable';
+import game from 'thing-editor/src/engine/game';
+import Lib, { constructRecursive } from 'thing-editor/src/engine/lib';
+import DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
+import getValueByPath from 'thing-editor/src/engine/utils/get-value-by-path';
+
+const zeroPoint = new Point();
+const spawnPoint = new Point();
+const spawnPointRet = new Point();
+
+/**
+ * Base class for spawner components. Contains all common spawning logic.
+ */
+export default abstract class BaseSpawner extends Container {
+
+    /** Prefab name to spawn - must be defined in subclasses with @editable decorator */
+    abstract prefabToSpawn: string | null;
+
+    @editable()
+    enabled = true;
+
+    @editable({ min: 0 })
+    interval = 0;
+
+    @editable({ min: 0 })
+    intervalRandom = 0;
+
+    @editable()
+    speed = 10;
+
+    @editable()
+    speedRandom = 10;
+
+    @editable()
+    applyRotation = false;
+
+    @editable({ type: 'data-path', isValueValid: (o: any) => { return (o instanceof Container); } })
+    container: string | null = null;
+
+    @editable({ type: 'ref' })
+    _container: Container | null = null;
+
+    @editable({ tip: 'Apply tint color to spawned DSprites and their descendants' })
+    applyTint = false;
+
+    @editable({ type: 'color', visible: (o: BaseSpawner) => o.applyTint, default: 0xFFFFFF, tip: 'Tint color for DSprites and their descendants' })
+    spawnTint = 0xFFFFFF;
+
+    curInterval = 0;
+
+    init() {
+        super.init();
+        this.curInterval = Math.round(Math.random() * this.intervalRandom);
+    }
+
+    enable() {
+        this.enabled = true;
+    }
+
+    disable() {
+        this.enabled = false;
+    }
+
+    setSpeed(speed: number) {
+        this.speed = speed;
+    }
+
+    update() {
+        if (this.enabled && this.worldVisible) {
+            if (this.curInterval > 0) {
+                this.curInterval--;
+            } else {
+                this.spawn();
+                this.curInterval = this.getNextInterval();
+            }
+        }
+        super.update();
+    }
+
+    getNextInterval() {
+        if (this.intervalRandom > 0) {
+            return this.interval + Math.round(Math.random() * this.intervalRandom);
+        }
+        return this.interval;
+    }
+
+    /// #if EDITOR
+    ___containerID = 0;
+    /// #endif
+
+    setTargetContainer(targetContainer: Container | string) {
+        if (targetContainer) {
+            this._container = (targetContainer instanceof Container) ? targetContainer : getValueByPath(targetContainer, this);
+            /// #if EDITOR
+            if (!this._container) {
+                game.editor.ui.status.error('Spawner targeted to not existing container: ' + this.container, 32007, this, 'container');
+                this._container = game.currentContainer;
+            }
+            /// #endif
+        } else {
+            this._container = game.currentContainer;
+        }
+        /// #if EDITOR
+        this.___containerID = this._container.___id;
+        /// #endif
+    }
+
+    protected validateSpawn(): boolean {
+        /// #if EDITOR
+        if (!this.prefabToSpawn) {
+            game.editor.ui.status.error('Prefab to spawn is not selected.', 32005, this, 'prefabToSpawn');
+            return false;
+        } else if (!Lib.hasPrefab(this.prefabToSpawn)) {
+            game.editor.ui.status.error('Prefab with name "' + this.prefabToSpawn + '" is not exists.', 32006, this, 'prefabToSpawn');
+            return false;
+        }
+        /// #endif
+        if (!this._container) {
+            this.setTargetContainer(this.container as string);
+        }
+        /// #if EDITOR
+        if (this.___containerID !== this._container!.___id) {
+            game.editor.ui.status.error('Spawner\'s target container has been removed. Please disable spawner before removing target container or use not removable target container.', 32056, this, 'container');
+            this.disable();
+            return false;
+        }
+        if (this._container?.worldTransform.a === 0 || this._container?.worldTransform.d === 0) {
+            game.editor.ui.status.error('Spawner\'s target container has zero scale. Impossible to calculate target point.', 99999, this, 'container');
+            this.disable();
+            return false;
+        }
+        /// #endif
+        return true;
+    }
+
+    protected getLocalSpawnPosition(resultPoint: Point) {
+        resultPoint.x = 0;
+        resultPoint.y = 0;
+    }
+
+    /**
+     * Hook method called after prefab is loaded but before adding to container.
+     * Subclasses can override to apply modifications to spawned object.
+     */
+    protected applySpawnOverrides(_spawnedObject: Container): void {
+        // Empty by default - subclasses can override
+    }
+
+    spawn() {
+        if (!this.validateSpawn()) {
+            return;
+        }
+
+        // Load prefab WITHOUT initialization to allow overrides before init()
+        let o = Lib.__loadPrefabNoInit(this.prefabToSpawn!);
+
+        // Hook for subclasses to apply modifications (e.g. override properties)
+        this.applySpawnOverrides(o);
+
+        // Initialize object (and children) after overrides are applied
+        constructRecursive(o);
+
+        if (this.applyRotation) {
+            o.rotation = this.getGlobalRotation();
+        }
+
+        if (this.applyTint) {
+            this.applyTintToSprites(o);
+        }
+
+        this._container!.addChild(o);
+        this.getLocalSpawnPosition(zeroPoint);
+        o.parent.toLocal(zeroPoint, this, o);
+
+        if (this.speed !== 0 || this.speedRandom !== 0) {
+            let sp = this.speed + Math.random() * this.speedRandom;
+            spawnPoint.x = zeroPoint.x + sp;
+            spawnPoint.y = zeroPoint.y;
+            o.parent.toLocal(spawnPoint, this, spawnPointRet, true);
+            (o as DSprite).xSpeed = spawnPointRet.x - o.x;
+            (o as DSprite).ySpeed = spawnPointRet.y - o.y;
+        }
+    }
+
+    protected applyTintToSprites(root: Container) {
+        if (!root) {
+            return;
+        }
+        const stack: Container[] = [root];
+        while (stack.length) {
+            const node = stack.pop()!;
+            if (node instanceof DSprite) {
+                node.tint = this.spawnTint;
+            }
+            for (const child of node.children) {
+                if (child instanceof Container) {
+                    stack.push(child);
+                }
+            }
+        }
+    }
+
+    onRemove(): void {
+        this._container = null;
+        super.onRemove();
+    }
+}
+
+/// #if EDITOR
+
+(BaseSpawner.prototype.enable as SelectableProperty).___EDITOR_isGoodForCallbackChooser = true;
+(BaseSpawner.prototype.disable as SelectableProperty).___EDITOR_isGoodForCallbackChooser = true;
+(BaseSpawner.prototype.spawn as SelectableProperty).___EDITOR_isGoodForCallbackChooser = true;
+(BaseSpawner.prototype.setSpeed as SelectableProperty).___EDITOR_isGoodForCallbackChooser = true;
+
+BaseSpawner.__EDITOR_icon = 'tree/spawner';
+
+/// #endif
