@@ -153,13 +153,15 @@ export default abstract class BaseSpawner extends Container {
         }
 
         // Load prefab WITHOUT initialization to allow overrides before init()
-        let o = Lib.__loadPrefabNoInit(this.prefabToSpawn!);
+        let o = (Lib as any).loadPrefab(this.prefabToSpawn!, true);
 
         // Hook for subclasses to apply modifications (e.g. override properties)
         this.applySpawnOverrides(o);
 
         // Initialize object (and children) after overrides are applied
-        constructRecursive(o);
+        if (!game.__EDITOR_mode) {
+            constructRecursive(o);
+        }
 
         if (this.applyRotation) {
             o.rotation = this.getGlobalRotation();
