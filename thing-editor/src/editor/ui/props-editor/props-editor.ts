@@ -32,6 +32,8 @@ import ImageEditor from 'thing-editor/src/editor/ui/props-editor/props-editors/i
 import L10nEditor from 'thing-editor/src/editor/ui/props-editor/props-editors/l10n-editor';
 import PrefabPropertyEditor from 'thing-editor/src/editor/ui/props-editor/props-editors/prefab-property-editor';
 import RectEditor from 'thing-editor/src/editor/ui/props-editor/props-editors/rect-editor';
+import Vector2Editor from 'thing-editor/src/editor/ui/props-editor/props-editors/vector2-editor';
+import Vector3Editor from 'thing-editor/src/editor/ui/props-editor/props-editors/vector3-editor';
 import SoundEditor from 'thing-editor/src/editor/ui/props-editor/props-editors/sound-editor';
 import { getSerializedObjectClass } from 'thing-editor/src/editor/utils/generate-editor-typings';
 import getObjectDefaults from 'thing-editor/src/editor/utils/get-prefab-defaults';
@@ -445,6 +447,8 @@ PropsEditor.registerRenderer('callback', CallbackEditor, null);
 PropsEditor.registerRenderer('timeline', TimelineEditor, null);
 PropsEditor.registerRenderer('pow-damp-preset', PowDampPresetEditor, null);
 PropsEditor.registerRenderer('rect', RectEditor, null);
+PropsEditor.registerRenderer('vector2', Vector2Editor, null);
+PropsEditor.registerRenderer('vector3', Vector3Editor, null);
 PropsEditor.registerRenderer('spine-sequence', SpineSequencesEditor, null);
 PropsEditor.registerRenderer('video-sequence', VideoSequencesEditor, null);
 PropsEditor.registerRenderer('video', VideoEditor, null);

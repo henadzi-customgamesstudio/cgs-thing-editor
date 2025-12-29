@@ -929,6 +929,17 @@ export default class Lib
 								w: val.w,
 								h: val.h
 							};
+						} else if (p.type === 'vector2') {
+							props[p.name] = {
+								x: val.x,
+								y: val.y
+							};
+						} else if (p.type === 'vector3') {
+							props[p.name] = {
+								x: val.x,
+								y: val.y,
+								z: val.z
+							};
 						} else {
 							props[p.name] = val;
 						}

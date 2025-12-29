@@ -30,11 +30,8 @@ export default class ParticleSpawner extends BaseSpawner {
     @editable({ tip: 'Override particle start scale (ignores random scale settings in prefab)' })
     overrideScale = false;
 
-    @editable({ min: 0.01, step: 0.01, visible: (o: ParticleSpawner) => o.overrideScale })
-    overrideScaleX = 1.0;
-
-    @editable({ min: 0.01, step: 0.01, visible: (o: ParticleSpawner) => o.overrideScale })
-    overrideScaleY = 1.0;
+    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSpawner) => o.overrideScale })
+    overrideScaleValue: Vector2 = { x: 1.0, y: 1.0 };
 
     // --- Image Override ---
     @editable({ type: 'splitter', title: 'Image Override' })
@@ -75,8 +72,8 @@ export default class ParticleSpawner extends BaseSpawner {
 
             if (this.overrideScale) {
                 particle.enableRandomStartScale = false;
-                particle.startScaleX = this.overrideScaleX;
-                particle.startScaleY = this.overrideScaleY;
+                particle.startScaleX = this.overrideScaleValue.x;
+                particle.startScaleY = this.overrideScaleValue.y;
             }
 
             if (this.overrideImage && this.overrideImageName) {

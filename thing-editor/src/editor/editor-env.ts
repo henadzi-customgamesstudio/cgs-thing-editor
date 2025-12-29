@@ -18,6 +18,17 @@ declare global {
 		h: number;
 	}
 
+	interface Vector2 {
+		x: number;
+		y: number;
+	}
+
+	interface Vector3 {
+		x: number;
+		y: number;
+		z: number;
+	}
+
 	type EditablePropertyType = keyof IEditablePropertyType;
 
 
@@ -91,6 +102,23 @@ declare global {
 		rect_maxW?: number;
 		rect_minH?: number;
 		rect_maxH?: number;
+
+		vector2_minX?: number;
+		vector2_maxX?: number;
+		vector2_minY?: number;
+		vector2_maxY?: number;
+		vector2_stepX?: number;
+		vector2_stepY?: number;
+
+		vector3_minX?: number;
+		vector3_maxX?: number;
+		vector3_minY?: number;
+		vector3_maxY?: number;
+		vector3_minZ?: number;
+		vector3_maxZ?: number;
+		vector3_stepX?: number;
+		vector3_stepY?: number;
+		vector3_stepZ?: number;
 
 		/** call-back and data-path properties validator */
 		isValueValid?: (val: any) => boolean;
@@ -207,6 +235,8 @@ export interface IEditablePropertyType {
 	'data-path': true;
 	'splitter': true;
 	'rect': true;
+	'vector2': true;
+	'vector3': true;
 	'callback': true;
 	'l10n': true;
 	'timeline': true;

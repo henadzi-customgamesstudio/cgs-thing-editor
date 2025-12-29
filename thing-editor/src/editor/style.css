@@ -1624,6 +1624,23 @@ input[disabled] {
 	align-items: center;
 }
 
+.vector2-editor,
+.vector3-editor {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+}
+
+.vector-editor-group {
+	display: flex;
+	align-items: center;
+}
+
+.vector-prop-label {
+	min-width: 12px;
+	color: #888;
+	font-size: 90%;
+}
 
 .music-profiler-row {
 	border: #ddd solid 1px;
