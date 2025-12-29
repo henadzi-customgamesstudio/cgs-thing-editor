@@ -3,19 +3,19 @@ import type { FileDesc } from 'thing-editor/src/editor/fs';
 import editable from 'thing-editor/src/editor/props-editor/editable';
 import { getSerializedObjectClass } from 'thing-editor/src/editor/utils/generate-editor-typings';
 import BaseSpawner from 'thing-editor/src/engine/lib/assets/src/basic/base-spawner.c';
-import ParticleShort from 'thing-editor/src/engine/lib/assets/src/custom/particle-short.c';
+import ParticleSprite from 'thing-editor/src/engine/lib/assets/src/custom/particle-sprite.c';
 
 /**
- * Filter function that only shows ParticleShort-based prefabs in the editor dropdown.
+ * Filter function that only shows ParticleSprite-based prefabs in the editor dropdown.
  */
 const particlePrefabFilter = (file: FileDesc) => {
     const PrefabClass = getSerializedObjectClass(file.asset as SerializedObject);
-    return PrefabClass.prototype instanceof ParticleShort || PrefabClass === (ParticleShort as any);
+    return PrefabClass.prototype instanceof ParticleSprite || PrefabClass === (ParticleSprite as any);
 };
 
 /**
- * Spawner component that only allows spawning ParticleShort-based prefabs.
- * The prefab dropdown will only show particle prefabs (based on ParticleShort class).
+ * Spawner component that only allows spawning ParticleSprite-based prefabs.
+ * The prefab dropdown will only show particle prefabs.
  * Supports overriding particle properties via hook method.
  */
 export default class ParticleSpawner extends BaseSpawner {
@@ -67,13 +67,13 @@ export default class ParticleSpawner extends BaseSpawner {
      * Apply particle-specific overrides to spawned object.
      */
     protected applySpawnOverrides(spawnedObject: Container): void {
-        if (spawnedObject instanceof ParticleShort) {
-            const particle = spawnedObject as ParticleShort;
+        if (spawnedObject instanceof ParticleSprite) {
+            const particle = spawnedObject;
 
             if (this.overrideScale) {
                 particle.enableRandomStartScale = false;
-                particle.startScaleX = this.overrideScaleValue.x;
-                particle.startScaleY = this.overrideScaleValue.y;
+                particle.startScale.x = this.overrideScaleValue.x;
+                particle.startScale.y = this.overrideScaleValue.y;
             }
 
             if (this.overrideImage && this.overrideImageName) {

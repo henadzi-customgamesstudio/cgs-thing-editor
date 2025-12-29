@@ -1,6 +1,9 @@
 import editable from 'thing-editor/src/editor/props-editor/editable';
 import DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
 
+/**
+ * @deprecated Use ParticleSprite instead.
+ */
 export default class ParticleShort extends DSprite {
 
     @editable()
@@ -162,3 +165,7 @@ export default class ParticleShort extends DSprite {
         super.update();
     }
 }
+
+/// #if EDITOR
+ParticleShort.__EDITOR_tip = '<b style="color:#ff9900">⚠️ DEPRECATED:</b> Use ParticleSprite instead.';
+/// #endif
