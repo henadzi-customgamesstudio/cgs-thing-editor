@@ -51,7 +51,11 @@ const _initParsers = () => {
 	spriteSheetLoader!.parse = (asset: any, options, ...args) => {
 		const n = options!.src!.lastIndexOf('/') + 1;
 		let url = options!.src!.substring(0, n) + asset.meta.image;
-		asset.meta.image = unHashedFileToHashed.get(url)!.split('/').pop();
+		const hashedFileName = unHashedFileToHashed.get(url);
+		if (!hashedFileName) {
+			throw new Error(`Atlas image "${url}" not registered. Check if the PNG file exists and is included in the build.`);
+		}
+		asset.meta.image = hashedFileName.split('/').pop();
 		return originalParser(asset, options, ...args);
 	};
 
@@ -692,6 +696,14 @@ export default class Lib
 
 		for (const textureName of data.images) {
 			Lib.addTexture(Lib.unHashFileName(textureName, assetsRoot), assetsRoot + textureName);
+		}
+
+		// Atlas images: only register in unHashedFileToHashed, don't load directly
+		// (they are loaded by spritesheetLoader when parsing the atlas JSON)
+		if (data.atlasImages) {
+			for (const textureName of data.atlasImages) {
+				Lib.unHashFileName(textureName, assetsRoot);
+			}
 		}
 
 		for (const soundEntry of data.sounds) {
