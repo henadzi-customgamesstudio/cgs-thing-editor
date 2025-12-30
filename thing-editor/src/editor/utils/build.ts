@@ -279,6 +279,7 @@ function getAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 
 function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 	let images: string[] = [];
+	let atlasImages: string[] | undefined;
 
 	let sounds: SoundAssetEntry[] = [];
 
@@ -294,16 +295,41 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 		return originalFileNames ? '' : getHashedAssetName(file);
 	};
 
+	// Collect atlas base paths to identify atlas texture images
+	// (atlas PNGs are loaded by spritesheetLoader, not via Lib.addTexture)
+	const atlasBasePaths = new Set<string>();
+	assets.forEach((file) => {
+		if (file.assetType === AssetType.RESOURCE && isAtlasAsset(file.asset) && !(file.asset as any)?.skeleton) {
+			// TexturePacker atlas - get base path without .json extension
+			const basePath = file.fileName.substring(0, file.fileName.length - 5);
+			atlasBasePaths.add(basePath);
+		}
+	});
+
 	assets.forEach((file) => {
 		if (isFileNameValidForBuild(file.assetName)) {
 			if (file.assetType === AssetType.IMAGE) {
 				if (!Lib.__isSystemTexture((file as FileDescImage).asset, file.assetName)) {
 					if (!file.parentAsset) {
+						// Check if this image is an atlas texture
+						const imageBasePath = file.fileName.substring(0, file.fileName.lastIndexOf('.'));
+						const isAtlasTexture = atlasBasePaths.has(imageBasePath);
+
 						assetsToCopy.push({
 							from: file.fileName,
 							to: hashed(file)
 						});
-						images.push(hashed(file));
+
+						if (isAtlasTexture) {
+							// Atlas textures go to atlasImages - registered but not loaded directly
+							// (they are loaded by spritesheetLoader when parsing the atlas JSON)
+							if (!atlasImages) {
+								atlasImages = [];
+							}
+							atlasImages.push(hashed(file));
+						} else {
+							images.push(hashed(file));
+						}
 					}
 				}
 			} else if (file.assetType === AssetType.SCENE) {
@@ -341,7 +367,7 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 							if (i.fileName.startsWith(fileRoot)) {
 								assetsToCopy.push({
 									from: i.fileName,
-									to: hashed(i) + i.fileName.split('.').pop()
+									to: hashed(i) + '.' + i.fileName.split('.').pop()
 								});
 							}
 						}
@@ -386,6 +412,7 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 		xmls,
 		fonts,
 		images,
+		atlasImages,
 		sounds,
 		videos
 	} as AssetsDescriptor;

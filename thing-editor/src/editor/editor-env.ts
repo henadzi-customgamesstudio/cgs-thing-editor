@@ -272,6 +272,8 @@ export interface AssetsDescriptor {
 	scenes: KeyedMap<SerializedObject>;
 	prefabs: KeyedMap<SerializedObject>;
 	images: string[];
+	/** Atlas texture images - registered in unHashedFileToHashed but not loaded directly (loaded by spritesheetLoader) */
+	atlasImages?: string[];
 	resources?: string[];
 	xmls?: string[];
 	fonts?: string[];
