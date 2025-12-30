@@ -9,6 +9,9 @@ import DSprite from 'thing-editor/src/engine/lib/assets/src/basic/d-sprite.c';
 export default class ParticleSprite extends DSprite {
 
     // --- Duration ---
+    @editable({ type: 'splitter', title: 'Duration' })
+    _durationSplitter = null;
+
     @editable()
     enableRandomDuration = false;
 
@@ -18,11 +21,25 @@ export default class ParticleSprite extends DSprite {
     @editable({ type: 'vector2', vector2_minX: 3, vector2_minY: 3, vector2_stepX: 1, vector2_stepY: 1, visible: (o: ParticleSprite) => o.enableRandomDuration, tip: 'Min and max duration range (x = min, y = max)' })
     durationRange: Vector2 = { x: 5, y: 15 };
 
-    // --- Speed Factor ---
-    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_maxX: 1, vector2_minY: 0.01, vector2_maxY: 1, vector2_stepX: 0.01, vector2_stepY: 0.01, tip: 'Speed damping factor per axis (x, y)' })
+    // --- Speed ---
+    @editable({ type: 'splitter', title: 'Speed' })
+    _speedSplitter = null;
+
+    @editable({ type: 'vector2', vector2_minX: 0, vector2_minY: 0, vector2_stepX: 0.01, vector2_stepY: 0.01, tip: 'Speed damping factor per axis (x, y)' })
     speedFactor: Vector2 = { x: 0.93, y: 0.93 };
 
-    // --- Start Scale ---
+    // Was hardcoded as 0.15 (calculated from 0.65 - 0.5), which caused particles to fall down over time
+    @editable({ step: 0.01, tip: 'Gravity effect on Y speed (positive = falls down)' })
+    gravity = 0;
+
+    // Was hardcoded as (Math.random() - 0.5) for both xSpeed and ySpeed
+    @editable({ tip: 'Enable random speed variation each frame' })
+    enableRandomSpeed = false;
+
+    // --- Scale ---
+    @editable({ type: 'splitter', title: 'Scale' })
+    _scaleSplitter = null;
+
     @editable()
     enableRandomStartScale = false;
 
@@ -35,14 +52,13 @@ export default class ParticleSprite extends DSprite {
     @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSprite) => o.enableRandomStartScale, tip: 'Maximum random start scale (x, y)' })
     maxStartScale: Vector2 = { x: 0.5, y: 0.5 };
 
-    // --- End Scale ---
-    @editable()
-    enableScaleOverDuration = false;
-
-    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSprite) => o.enableScaleOverDuration, tip: 'End scale multiplier (x, y)' })
+    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, tip: 'End scale multiplier (x, y)' })
     endScale: Vector2 = { x: 1.0, y: 1.0 };
 
     // --- Flip ---
+    @editable({ type: 'splitter', title: 'Flip' })
+    _flipSplitter = null;
+
     @editable()
     randomFlipX = true;
 
@@ -56,6 +72,9 @@ export default class ParticleSprite extends DSprite {
     chanceFlipY = 0.5;
 
     // --- Alpha ---
+    @editable({ type: 'splitter', title: 'Alpha' })
+    _alphaSplitter = null;
+
     @editable({ min: 0, max: 1, step: 0.01 })
     startAlpha = 1.0;
 
@@ -67,6 +86,16 @@ export default class ParticleSprite extends DSprite {
 
     @editable({ min: 0, max: 1, step: 0.01 })
     middleAlphaPosition = 0.5;
+
+    // --- Rotation ---
+    @editable({ type: 'splitter', title: 'Rotation' })
+    _rotationSplitter = null;
+
+    @editable({ step: 0.01, tip: 'Initial rotation in radians' })
+    startRotation = 0;
+
+    @editable({ step: 0.01, tip: 'Rotation speed in radians per frame' })
+    rotationSpeed = 0;
 
     // --- Internal state ---
     size = 1;
@@ -107,12 +136,11 @@ export default class ParticleSprite extends DSprite {
             this.scale.y = -this.scale.y;
         }
 
-        if (this.enableScaleOverDuration) {
-            const targetScaleX = initialScaleX * this.endScale.x;
-            const targetScaleY = initialScaleY * this.endScale.y;
-            this.scaleSpeedX = (targetScaleX - initialScaleX) / this.currentDuration;
-            this.scaleSpeedY = (targetScaleY - initialScaleY) / this.currentDuration;
-        }
+        // Always calculate scale speed based on endScale (removed enableScaleOverDuration)
+        const targetScaleX = initialScaleX * this.endScale.x;
+        const targetScaleY = initialScaleY * this.endScale.y;
+        this.scaleSpeedX = (targetScaleX - initialScaleX) / this.currentDuration;
+        this.scaleSpeedY = (targetScaleY - initialScaleY) / this.currentDuration;
 
         this.middleTime = this.middleAlphaPosition * this.currentDuration;
 
@@ -126,6 +154,7 @@ export default class ParticleSprite extends DSprite {
         }
 
         this.alpha = this.startAlpha;
+        this.rotation = this.startRotation;
 
         this.chanceToRemove = 1 - 1 / this.currentDuration;
     }
@@ -133,10 +162,9 @@ export default class ParticleSprite extends DSprite {
     update() {
         this.age++;
 
-        if (this.enableScaleOverDuration) {
-            this.scale.x += this.scaleSpeedX;
-            this.scale.y += this.scaleSpeedY;
-        }
+        // Always apply scale over duration (removed enableScaleOverDuration check)
+        this.scale.x += this.scaleSpeedX;
+        this.scale.y += this.scaleSpeedY;
 
         if (this.age < this.middleTime) {
             this.alpha += this.alphaSpeed1;
@@ -148,10 +176,16 @@ export default class ParticleSprite extends DSprite {
             this.remove();
         }
 
-        this.xSpeed += (Math.random() - 0.5);
+        if (this.enableRandomSpeed) {
+            this.xSpeed += (Math.random() - 0.5);
+            this.ySpeed += (Math.random() - 0.5);
+        }
         this.xSpeed *= this.speedFactor.x;
-        this.ySpeed += (Math.random() - 0.65);
+        this.ySpeed += this.gravity;
         this.ySpeed *= this.speedFactor.y;
+        if (this.rotationSpeed !== 0) {
+            this.rotation += this.rotationSpeed;
+        }
 
         super.update();
     }

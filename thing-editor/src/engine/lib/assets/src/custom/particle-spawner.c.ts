@@ -4,6 +4,7 @@ import editable from 'thing-editor/src/editor/props-editor/editable';
 import { getSerializedObjectClass } from 'thing-editor/src/editor/utils/generate-editor-typings';
 import BaseSpawner from 'thing-editor/src/engine/lib/assets/src/basic/base-spawner.c';
 import ParticleSprite from 'thing-editor/src/engine/lib/assets/src/custom/particle-sprite.c';
+import { cloneVector2 } from 'thing-editor/src/engine/utils/vector-utils';
 
 /**
  * Filter function that only shows ParticleSprite-based prefabs in the editor dropdown.
@@ -86,8 +87,11 @@ export default class ParticleSpawner extends BaseSpawner {
     @editable({ tip: 'Override particle start scale (ignores random scale settings in prefab)' })
     overrideScale = false;
 
-    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSpawner) => o.overrideScale })
+    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSpawner) => o.overrideScale, tip: 'Start scale (x, y)' })
     overrideScaleValue: Vector2 = { x: 1.0, y: 1.0 };
+
+    @editable({ type: 'vector2', vector2_minX: 0.01, vector2_minY: 0.01, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSpawner) => o.overrideScale, tip: 'End scale multiplier (x, y)' })
+    overrideEndScaleValue: Vector2 = { x: 1.0, y: 1.0 };
 
     // --- Image Override ---
     @editable({ type: 'splitter', title: 'Image Override' })
@@ -119,6 +123,35 @@ export default class ParticleSpawner extends BaseSpawner {
     @editable({ type: 'color', default: 0xFFFFFF, visible: (o: ParticleSpawner) => o.overrideTint })
     overrideTintColor = 0xFFFFFF;
 
+    // --- Rotation Override ---
+    @editable({ type: 'splitter', title: 'Rotation Override' })
+    _rotationOverrideSplitter = null;
+
+    @editable({ tip: 'Override particle rotation settings' })
+    overrideRotation = false;
+
+    @editable({ step: 0.01, visible: (o: ParticleSpawner) => o.overrideRotation, tip: 'Start rotation value in radians' })
+    overrideStartRotationValue = 0;
+
+    @editable({ step: 0.01, visible: (o: ParticleSpawner) => o.overrideRotation, tip: 'Rotation speed in radians per frame' })
+    overrideRotationSpeedValue = 0;
+
+    // --- Speed Override ---
+    @editable({ type: 'splitter', title: 'Speed Override' })
+    _speedOverrideSplitter = null;
+
+    @editable({ tip: 'Override particle speed factor settings' })
+    overrideSpeed = false;
+
+    @editable({ type: 'vector2', vector2_minX: 0, vector2_minY: 0, vector2_stepX: 0.01, vector2_stepY: 0.01, visible: (o: ParticleSpawner) => o.overrideSpeed, tip: 'Speed damping factor per axis (x, y)' })
+    overrideSpeedFactorValue: Vector2 = { x: 0.93, y: 0.93 };
+
+    @editable({ step: 0.01, visible: (o: ParticleSpawner) => o.overrideSpeed, tip: 'Gravity effect on Y speed (positive = falls down)' })
+    overrideGravityValue = 0;
+
+    @editable({ visible: (o: ParticleSpawner) => o.overrideSpeed, tip: 'Enable random speed variation each frame' })
+    overrideEnableRandomSpeed = false;
+
     /**
      * Apply particle-specific overrides to spawned object.
      */
@@ -128,8 +161,8 @@ export default class ParticleSpawner extends BaseSpawner {
 
             if (this.overrideScale) {
                 particle.enableRandomStartScale = false;
-                particle.startScale.x = this.overrideScaleValue.x;
-                particle.startScale.y = this.overrideScaleValue.y;
+                particle.startScale = cloneVector2(this.overrideScaleValue);
+                particle.endScale = cloneVector2(this.overrideEndScaleValue);
             }
 
             if (this.overrideImage && this.overrideImageName) {
@@ -143,6 +176,17 @@ export default class ParticleSpawner extends BaseSpawner {
 
             if (this.overrideTint) {
                 particle.tint = this.overrideTintColor;
+            }
+
+            if (this.overrideRotation) {
+                particle.startRotation = this.overrideStartRotationValue;
+                particle.rotationSpeed = this.overrideRotationSpeedValue;
+            }
+
+            if (this.overrideSpeed) {
+                particle.speedFactor = cloneVector2(this.overrideSpeedFactorValue);
+                particle.gravity = this.overrideGravityValue;
+                particle.enableRandomSpeed = this.overrideEnableRandomSpeed;
             }
         }
     }
