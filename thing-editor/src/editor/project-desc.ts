@@ -3,6 +3,7 @@ export type ProjectOrientation = 'landscape' | 'portrait' | 'auto';
 
 declare global {
 	interface ProjectDesc {
+		env?: string;
 		id: string;
 		title: string;
 		icon: string;
@@ -53,6 +54,6 @@ declare global {
 		__group: string;
 		libs: string[];
 		__editorPreloadTime?: number;
-}
+	}
 }
 
