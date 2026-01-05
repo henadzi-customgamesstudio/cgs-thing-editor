@@ -1,4 +1,5 @@
 import { Point } from 'pixi.js';
+import * as THREE from 'three';
 
 /**
  * Utility functions for Vector2 and Vector3 operations.
@@ -241,6 +242,48 @@ export function lerpVector3(a: Vector3, b: Vector3, t: number): Vector3 {
         y: a.y + (b.y - a.y) * t,
         z: a.z + (b.z - a.z) * t
     };
+}
+
+// ============================================
+// THREE.js Vector3 Conversions
+// ============================================
+
+/**
+ * Converts engine Vector3 to THREE.Vector3.
+ * Creates a new THREE.Vector3 instance.
+ */
+export function toThreeVector3(v: Vector3): THREE.Vector3 {
+    return new THREE.Vector3(v.x, v.y, v.z);
+}
+
+/**
+ * Converts THREE.Vector3 to engine Vector3.
+ * Creates a new plain object.
+ */
+export function fromThreeVector3(v: THREE.Vector3): Vector3 {
+    return { x: v.x, y: v.y, z: v.z };
+}
+
+/**
+ * Copies values from engine Vector3 to THREE.Vector3.
+ * Modifies target in place.
+ * @returns The modified target
+ */
+export function copyToThreeVector3(target: THREE.Vector3, source: Vector3): THREE.Vector3 {
+    target.set(source.x, source.y, source.z);
+    return target;
+}
+
+/**
+ * Copies values from THREE.Vector3 to engine Vector3.
+ * Modifies target in place.
+ * @returns The modified target
+ */
+export function copyFromThreeVector3(target: Vector3, source: THREE.Vector3): Vector3 {
+    target.x = source.x;
+    target.y = source.y;
+    target.z = source.z;
+    return target;
 }
 
 // ============================================
