@@ -281,11 +281,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 	_currentAnimation: string | null = null;
 	@editable(animationNamePropDesc)
 	set currentAnimation(v) {
-		/// #if DEBUG
-		if (v) {
-			this.__checkAnimationName(v);
+		if (v && !this.hasAnimation(v)) {
+			this._onAnimationNotFound(v);
+			return;
 		}
-		/// #endif
 
 		if (this._currentAnimation === v) return;
 
@@ -451,6 +450,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 		if (!this.spineContent) return;
 
 		if (animationName) {
+			if (!this.hasAnimation(animationName)) {
+				this._onAnimationNotFound(animationName);
+				return;
+			}
 			this.currentAnimation = animationName;
 			const trackEntry = this._applyAnimation();
 			trackEntry.mixDuration = mixDuration;
@@ -464,6 +467,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 		if (!this.spineContent) return;
 
 		if (animationName) {
+			if (!this.hasAnimation(animationName)) {
+				this._onAnimationNotFound(animationName);
+				return;
+			}
 			this.currentAnimation = animationName;
 			this._animationIsDirty = false;
 			const trackEntry = this._applyAnimation();
@@ -476,9 +483,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 	}
 
 	playIfDifferent(animationName:string, mixDuration:number, playIfStopped = true) {
-		/// #if DEBUG
-		this.__checkAnimationName(animationName);
-		/// #endif
+		if (!this.hasAnimation(animationName)) {
+			this._onAnimationNotFound(animationName);
+			return;
+		}
 
 		const isSameAnimationPlayed = this.isPlaying && animationName === this.currentAnimation;
 		const isStoppedAndCantPlay = !this.isPlaying && !playIfStopped;
@@ -491,9 +499,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 	}
 
 	playIfNot(animationName:string, mixDuration:number, playIfStopped = true, animationNamesRegexp:string) {
-		/// #if DEBUG
-		this.__checkAnimationName(animationName);
-		/// #endif
+		if (!this.hasAnimation(animationName)) {
+			this._onAnimationNotFound(animationName);
+			return;
+		}
 
 		if (RegExp(animationNamesRegexp).test(this.currentAnimation!)) return;
 
@@ -529,9 +538,6 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 	}
 
 	stopByName(animationName:string, isNeedRefresh = false) {
-		/// #if DEBUG
-		this.__checkAnimationName(animationName);
-		/// #endif
 		if (!this.isPlaying) return;
 		if (animationName !== this.currentAnimation) return;
 		this.stop(isNeedRefresh);
@@ -736,6 +742,10 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 		if (!item) {
 			this.toInitPose(Math.round(this.mixDuration * 60));
 		} else {
+			if (!this.hasAnimation(item.n)) {
+				this._onAnimationNotFound(item.n);
+				return;
+			}
 			this.play(item.n, (item.mixDuration || 0) / 60);
 			this.loop = false;
 			this.sequenceDelay = item.delay || 0;
@@ -759,6 +769,18 @@ export default class Spine extends Container implements IGoToLabelConsumer {
 			this._initSequencesByName();
 		}
 		return this._sequencesByNames.has(labelName);
+	}
+
+	hasAnimation(animationName: string): boolean {
+		if (!this.spineContent) return false;
+		return !!this.spineContent.skeleton.data.animations.find((a) => a.name === animationName);
+	}
+
+	_onAnimationNotFound(animationName: string) {
+		/// #if EDITOR
+		game.editor.ui.status.warn('Spine \'' + this.spineData + '\' does not have animation \'' + animationName + '\'', 99999, this);
+		/// #endif
+		this.gotoLabelRecursive('animation_not_found_fallback_' + animationName);
 	}
 
 	gotoLabelRecursive(labelName: string): void {
