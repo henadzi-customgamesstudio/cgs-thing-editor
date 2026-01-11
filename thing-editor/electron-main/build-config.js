@@ -1,4 +1,5 @@
 const ifDefPlugin = require('./vite-plugin-ifdef/if-def-loader.js');
+const htmlPlaceholdersPlugin = require('./vite-plugin-html-placeholders.js');
 const path = require('path');
 const {ViteImageOptimizer} = require('vite-plugin-image-optimizer');
 
@@ -15,6 +16,7 @@ module.exports = (_root, publicDir, outDir, debug, _projectDesc) => {
 		},
 		plugins: [
 			ifDefPlugin(debug),
+			htmlPlaceholdersPlugin(_projectDesc.__buildTemplate),
 			ViteImageOptimizer({
 				logStats: false,
 				test: /^((?!no-optimize).)*\.(jpe?g|png|gif|tiff|webp|svg|avif)$/i,

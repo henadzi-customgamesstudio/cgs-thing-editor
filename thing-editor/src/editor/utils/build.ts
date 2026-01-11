@@ -208,6 +208,15 @@ import Lib from 'thing-editor/src/engine/lib';`];
 			}
 		}
 
+		// Look for custom build template (index.build.html)
+		for (let dir of reversedDirsList) {
+			const buildTemplateName = dir + 'index.build.html';
+			if (fs.exists(buildTemplateName)) {
+				projectDesc.__buildTemplate = buildTemplateName;
+				break;
+			}
+		}
+
 		await fs.build(game.editor.currentProjectDir, debug, assetsToCopy, projectDesc).then(async (result: any) => {
 
 

@@ -23,6 +23,8 @@ declare global {
 		dynamicStageSize: boolean;
 		__buildConfigDebug: string;
 		__buildConfigRelease: string;
+		/** Path to custom HTML build template (index.build.html) */
+		__buildTemplate?: string;
 		preventUpscale: boolean;
 		webfontloader: {
 			custom?: {
