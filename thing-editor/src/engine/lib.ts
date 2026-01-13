@@ -493,10 +493,13 @@ export default class Lib
 			uniqueSrcs.add(Lib.resolveVideoSrc(videoName));
 		}
 
-		await Promise.all(Array.from(uniqueSrcs).map(src => {
+		const VIDEO_PRELOAD_TIMEOUT = 10000; // 10 seconds timeout per video
+
+		// Use Promise.allSettled to not fail on individual video errors
+		await Promise.allSettled(Array.from(uniqueSrcs).map(src => {
 			if (preloadedVideoElements.has(src)) return Promise.resolve();
 
-			return new Promise<void>((resolve, reject) => {
+			return new Promise<void>((resolve) => {
 				const video = document.createElement('video');
 				video.crossOrigin = 'anonymous';
 				video.muted = true;
@@ -505,15 +508,26 @@ export default class Lib
 				video.autoplay = false;
 				video.src = src;
 
-				video.addEventListener('canplaythrough', () => {
-					preloadedVideoElements.set(src, video);
+				let resolved = false;
+				const done = (success: boolean) => {
+					if (resolved) return;
+					resolved = true;
+					if (success) {
+						preloadedVideoElements.set(src, video);
+					}
 					resolve();
-				}, { once: true });
+				};
 
-				video.addEventListener('error', () => {
-					console.error('Lib.preloadVideos: Failed to load video:', src);
-					reject(new Error('Failed to load video: ' + src));
-				}, { once: true });
+				video.addEventListener('canplaythrough', () => done(true), { once: true });
+				video.addEventListener('error', () => done(false), { once: true });
+
+				// Timeout to prevent hanging on videos that never load
+				setTimeout(() => {
+					if (!resolved) {
+						console.warn('Lib.preloadVideos: Timeout loading video:', src);
+						done(false);
+					}
+				}, VIDEO_PRELOAD_TIMEOUT);
 
 				video.load();
 			});
@@ -726,27 +740,32 @@ export default class Lib
 		}
 
 		if (data.videos) {
-			console.error('Lib.addAssets: Registering videos:', data.videos);
-			// alert('Lib.addAssets: ' + data.videos.length + ' videos');
 			for (const videoName of data.videos) {
-				const underscoreIndex = videoName.lastIndexOf('_');
-
 				// Try to determine extension; hashed videos come without it in the manifest
 				const knownExtensions = ['.mp4', '.webm'];
 				const extFromName = knownExtensions.find(ext => videoName.endsWith(ext)) || '';
-				// When there is a dot right before the hash (char6._xxxx) it is a webm, otherwise mp4
-				const ext = extFromName || (videoName[underscoreIndex - 1] === '.' ? '.webm' : '.mp4');
 
-				if (underscoreIndex > 0) {
-					// Strip trailing dot that belongs to the original extension before the hash
-					const baseName = videoName.substring(0, underscoreIndex).replace(/\.$/, '');
+				// Hash is always 8 characters. Pattern: name._XXXXXXXX (webm) or name_XXXXXXXX (mp4)
+				// Check for webm pattern: "._" followed by 8-char hash
+				const isWebm = videoName.length > 10 && videoName[videoName.length - 9] === '_' && videoName[videoName.length - 10] === '.';
+				const ext = extFromName || (isWebm ? '.webm' : '.mp4');
+
+				// Calculate where the hash starts (8 chars from end, plus underscore, plus optional dot for webm)
+				const hashStartIndex = videoName.length - 9; // underscore + 8 char hash
+				const hasHash = hashStartIndex > 0 && videoName[hashStartIndex] === '_';
+
+				if (hasHash) {
+					// Strip the hash and trailing dot (for webm)
+					let baseName = videoName.substring(0, hashStartIndex);
+					if (baseName.endsWith('.')) {
+						baseName = baseName.slice(0, -1); // Remove trailing dot from webm names
+					}
 					const keyWithExt = baseName + ext;
 					const val = assetsRoot + videoName + (extFromName ? '' : ext);
-					console.error(`Lib.addAssets: Adding video key='${keyWithExt}' val='${val}'`);
 					Lib.addVideo(baseName, val); // for lookups without extension
 					Lib.addVideo(keyWithExt, val); // for lookups with extension
 				} else {
-					console.error(`Lib.addAssets: Adding unhashed video '${videoName}'`);
+					// Unhashed video
 					const unhashedName = Lib.unHashFileName(videoName, assetsRoot);
 					const val = assetsRoot + videoName + (extFromName ? '' : ext);
 					Lib.addVideo(unhashedName.replace(/\.$/, ''), val);
@@ -754,15 +773,11 @@ export default class Lib
 				}
 			}
 			if (!Lib.__videoPreloadPromise && typeof document !== 'undefined') {
-				game.loadingAdd('video-preload');
-				Lib.__videoPreloadPromise = Lib.preloadVideos(data.videos).catch((er) => {
-					console.error('Lib.preloadVideos failed:', er);
-				}).finally(() => {
-					game.loadingRemove('video-preload');
-				});
+				// Preload videos in background - don't block game loading
+				// Videos will be loaded on-demand if not preloaded in time
+				const registeredVideoKeys = Object.keys(Lib.videos);
+				Lib.__videoPreloadPromise = Lib.preloadVideos(registeredVideoKeys);
 			}
-		} else {
-			console.error('Lib.addAssets: data.videos is MISSING or EMPTY');
 		}
 
 	}

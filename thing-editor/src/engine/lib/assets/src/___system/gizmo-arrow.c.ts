@@ -121,6 +121,13 @@ export default class ___GizmoArrow extends Shape {
 		}
 	}
 
+	onRemove() {
+		super.onRemove();
+		this.removeListener('pointerover', this.onPointerOver);
+		this.removeListener('pointerleave', this.onPointerOut);
+		this.removeListener('pointerdown', this.onPointerDown);
+	}
+
 	get isShowAngle() {
 		return game.editor.selection.length && game.editor.selection[0].rotation !== 0;
 	}

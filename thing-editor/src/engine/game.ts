@@ -67,6 +67,7 @@ const FILTERED_PROPS = new Set([
 /// #endif
 
 let contextLoseTime = 0;
+let isContextLost = false;
 
 const DEFAULT_FADER_NAME = 'fader/default';
 const PRELOADER_SCENE_NAME = 'preloader';
@@ -174,6 +175,9 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 	/** cordova build only */
 	exitApp: (() => void) | undefined;
 
+	/** Launch parameters from window.launchParams (set in HTML template) */
+	launchParams: Record<string, any> | null = null;
+
 	/// #if EDITOR
 	__time = 0;
 	get time() {
@@ -199,6 +203,12 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 		/*
 		/// #endif
 		game.addAssets(preloaderAssets);
+
+		// Parse launch parameters from HTML template
+		if ((window as any).launchParams) {
+			this.launchParams = (window as any).launchParams;
+			console.log('[Game] Launch params loaded:', this.launchParams);
+		}
 		//*/
 
 		window.dispatchEvent(new CustomEvent('game-will-init'));
@@ -265,6 +275,21 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 
 		this.pixiApp.view.addEventListener!('wheel', (ev) => ev.preventDefault());
 		window.addEventListener('resize', this._onContainerResize.bind(this));
+
+		// WebGL context loss handling for Windows stability
+		const canvas = this.pixiApp.view as HTMLCanvasElement;
+		canvas.addEventListener('webglcontextlost', (event) => {
+			console.error('[Game] WebGL context lost - preventing default, will attempt recovery');
+			event.preventDefault();
+			isContextLost = true;
+		});
+		canvas.addEventListener('webglcontextrestored', () => {
+			console.log('[Game] WebGL context restored - reloading game');
+			isContextLost = false;
+			contextLoseTime = 0;
+			game._reloadGame();
+		});
+
 		this.onResize();
 		this.emit('preloader-scene-will-start');
 		this.showScene(PRELOADER_SCENE_NAME);

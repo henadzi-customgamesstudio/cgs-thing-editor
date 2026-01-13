@@ -22,7 +22,7 @@ const onNew = (ret: any) => {
 
 const onTake = (ret: any) => {
 	if (ret instanceof Container) {
-		assert(!(ret as any)._eventsCount, 'Object has unsubscribed events');
+		assert(!(ret as any)._eventsCount, 'Object still has event listeners that were not removed. Check onRemove() method.', 99999, ret);
 		ret.___id = __idCounter++;
 		ret.__nodeExtendData = {};
 	}
@@ -77,6 +77,15 @@ export default class Pool {
 		/// #if EDITOR
 		obj.___id = null;
 		/// #endif
+
+		// Clean up any remaining event listeners as a safety net
+		if (obj instanceof Container && (obj as any)._eventsCount) {
+			/// #if EDITOR
+			console.warn('Pool.dispose: Object "' + obj.name + '" (' + (obj.constructor as SourceMappedConstructor).__className + ') still has ' + (obj as any)._eventsCount + ' event listener(s). Add removeListener() calls in onRemove() method.', obj);
+			/// #endif
+			obj.removeAllListeners();
+		}
+
 		let key = obj.constructor;
 		if (!pools.has(key)) {
 			pools.set(key, []);

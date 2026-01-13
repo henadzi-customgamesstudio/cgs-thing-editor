@@ -155,6 +155,13 @@ module.exports = (mainWindow) => {
 				}
 				event.returnValue = ret;
 				return;
+			case 'fs/listDir':
+				if (!fs.existsSync(fn(fileName))) {
+					event.returnValue = [];
+					return;
+				}
+				event.returnValue = fs.readdirSync(fn(fileName));
+				return;
 			case 'fs/watchDirs':
 				watchFolders(fileName, onFileChange);
 				event.returnValue = true;

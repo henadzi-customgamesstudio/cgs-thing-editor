@@ -522,6 +522,11 @@ export default class fs {
 		return execFs('fs/showFile', fileName);
 	}
 
+	/** Returns list of file names in directory (non-recursive) */
+	static listDir(dirPath: string): string[] {
+		return execFs('fs/listDir', dirPath) as string[];
+	}
+
 	static build(projectDir: string, debug: boolean, copyAssets: { from: string; to: string }[], projectDesc: ProjectDesc) {
 		return execFsAsync('fs/build', projectDir, debug, copyAssets, projectDesc);
 	}

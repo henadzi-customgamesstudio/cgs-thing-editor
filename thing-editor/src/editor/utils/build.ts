@@ -124,8 +124,7 @@ export default class Build {
 		saveAssetsDescriptor(preloaderAssets, 'assets-preloader.json', projectDesc, text);
 
 		const mainAssets: Set<FileDesc> = new Set();
-		const allAssets = fs.getAssetsList();
-		for (let asset of allAssets) {
+		for (const asset of fs.getAssetsList()) {
 			if (!preloaderAssets.has(asset)) {
 				mainAssets.add(asset);
 			}
@@ -208,13 +207,40 @@ import Lib from 'thing-editor/src/engine/lib';`];
 			}
 		}
 
-		// Look for custom build template (index.build.html)
+		// Look for custom build templates (index.build*.html)
+		const buildTemplates: { name: string; path: string }[] = [];
 		for (let dir of reversedDirsList) {
-			const buildTemplateName = dir + 'index.build.html';
-			if (fs.exists(buildTemplateName)) {
-				projectDesc.__buildTemplate = buildTemplateName;
-				break;
+			const files = fs.listDir(dir);
+			for (const file of files) {
+				if (file.startsWith('index.build') && file.endsWith('.html')) {
+					const templatePath = dir + file;
+					// Avoid duplicates from different asset folders
+					if (!buildTemplates.some(t => t.name === file)) {
+						buildTemplates.push({ name: file, path: templatePath });
+					}
+				}
 			}
+		}
+
+		if (buildTemplates.length > 1) {
+			// Show dialog to choose template
+			const list = [
+				{ name: '(No template - use index.html)', value: '' },
+				...buildTemplates.map(t => ({
+					name: t.name,
+					value: t.path
+				}))
+			];
+			const chosen = await game.editor.ui.modal.showListChoose('Choose build template', list, false, true);
+			if (!chosen) {
+				game.editor.ui.modal.hideSpinner();
+				return; // User cancelled
+			}
+			if (chosen.value) {
+				projectDesc.__buildTemplate = chosen.value as string;
+			}
+		} else if (buildTemplates.length === 1) {
+			projectDesc.__buildTemplate = buildTemplates[0].path;
 		}
 
 		await fs.build(game.editor.currentProjectDir, debug, assetsToCopy, projectDesc).then(async (result: any) => {
