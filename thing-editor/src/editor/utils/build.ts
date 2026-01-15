@@ -350,20 +350,27 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 						const imageBasePath = file.fileName.substring(0, file.fileName.lastIndexOf('.'));
 						const isAtlasTexture = atlasBasePaths.has(imageBasePath);
 
-						assetsToCopy.push({
-							from: file.fileName,
-							to: hashed(file)
-						});
-
-						if (isAtlasTexture) {
-							// Atlas textures go to atlasImages - registered but not loaded directly
-							// (they are loaded by spritesheetLoader when parsing the atlas JSON)
-							if (!atlasImages) {
-								atlasImages = [];
-							}
-							atlasImages.push(hashed(file));
+						if (file.assetName.startsWith('3d/')) {
+							assetsToCopy.push({
+								from: file.fileName,
+								to: file.assetName
+							});
 						} else {
-							images.push(hashed(file));
+							assetsToCopy.push({
+								from: file.fileName,
+								to: hashed(file)
+							});
+
+							if (isAtlasTexture) {
+								// Atlas textures go to atlasImages - registered but not loaded directly
+								// (they are loaded by spritesheetLoader when parsing the atlas JSON)
+								if (!atlasImages) {
+									atlasImages = [];
+								}
+								atlasImages.push(hashed(file));
+							} else {
+								images.push(hashed(file));
+							}
 						}
 					}
 				}
@@ -447,6 +454,23 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 			}
 		}
 	});
+
+	// Copy libs folder if exists
+	const libsDir = game.editor.currentProjectAssetsDir + 'libs/';
+	if (fs.exists(libsDir)) {
+		const libFiles = fs.readDirRecursive(libsDir);
+		for (const file of libFiles) {
+			// file.fileName is absolute path.
+			// We need relative path to assets folder for destination.
+			// game.editor.currentProjectAssetsDir is e.g. "games/mfc_slot_client/assets/"
+			const relPath = file.fileName.substring(game.editor.currentProjectAssetsDir.length);
+			assetsToCopy.push({
+				from: '/' + file.fileName,
+				to: relPath
+			});
+		}
+	}
+
 	return {
 		scenes,
 		prefabs,

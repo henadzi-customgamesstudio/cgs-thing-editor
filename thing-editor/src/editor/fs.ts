@@ -44,6 +44,7 @@ interface FileDesc {
 	includeToBuild?: boolean;
 
 	asset: SourceMappedConstructor | SerializedObject | Texture | HowlSound | KeyedObject;
+	isDir?: boolean;
 }
 
 interface FileDescClass extends FileDesc {
@@ -536,7 +537,11 @@ export default class fs {
 
 	/** Returns list of file names in directory (non-recursive) */
 	static listDir(dirPath: string): string[] {
-		return execFs('fs/listDir', dirPath) as string[];
+		return execFs('fs/listDir', dirPath) as unknown as string[];
+	}
+
+	static readDirRecursive(dirPath: string): FileDesc[] {
+		return execFs('fs/readDir', dirPath) as FileDesc[];
 	}
 
 	static build(projectDir: string, debug: boolean, copyAssets: { from: string; to: string }[], projectDesc: ProjectDesc) {
