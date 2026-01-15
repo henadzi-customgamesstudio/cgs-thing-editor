@@ -437,6 +437,13 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 					from: file.fileName,
 					to: hashed(file) + file.fileName.substring(file.fileName.lastIndexOf('.'))
 				});
+			} else if (file.assetType === AssetType.GLB ||
+				file.assetType === AssetType.GLTF ||
+				file.assetType === AssetType.BIN) {
+				assetsToCopy.push({
+					from: file.fileName,
+					to: file.assetName + file.fileName.substring(file.fileName.lastIndexOf('.'))
+				});
 			}
 		}
 	});

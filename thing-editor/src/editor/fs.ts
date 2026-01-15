@@ -84,7 +84,10 @@ enum AssetType {
 	/** non file asses. Used in enumAssetsPropsRecursive to copy l10n values */
 	L10N_ENTRY = 'L10N_ENTRY',
 	FONT = 'FONT',
-	VIDEO = 'VIDEO'
+	VIDEO = 'VIDEO',
+	GLB = 'GLB',
+	GLTF = 'GLTF',
+	BIN = 'BIN'
 }
 
 const AllAssetsTypes: AssetType[] = Object.values(AssetType);
@@ -121,14 +124,20 @@ const ASSETS_PARSERS = {
 	'.xml': AssetType.BITMAP_FONT,
 	'.c.ts': AssetType.CLASS,
 	'.mp4': AssetType.VIDEO,
-	'.webm': AssetType.VIDEO
+	'.webm': AssetType.VIDEO,
+	'.glb': AssetType.GLB,
+	'.gltf': AssetType.GLTF,
+	'.bin': AssetType.BIN
 };
 
 const ASSET_TYPE_TO_EXT = {
 	[AssetType.SCENE]: '.s.json',
 	[AssetType.PREFAB]: '.p.json',
 	[AssetType.CLASS]: '.c.ts',
-	[AssetType.VIDEO]: '.mp4'
+	[AssetType.VIDEO]: '.mp4',
+	[AssetType.GLB]: '.glb',
+	[AssetType.GLTF]: '.gltf',
+	[AssetType.BIN]: '.bin'
 };
 
 const ASSET_EXT_CROP_LENGTHS: Map<AssetType, number> = new Map();
@@ -143,6 +152,9 @@ ASSET_EXT_CROP_LENGTHS.set(AssetType.RESOURCE, 5);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.FBX, 4);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.BITMAP_FONT, 4);
 ASSET_EXT_CROP_LENGTHS.set(AssetType.VIDEO, 4);
+ASSET_EXT_CROP_LENGTHS.set(AssetType.GLB, 4);
+ASSET_EXT_CROP_LENGTHS.set(AssetType.GLTF, 5);
+ASSET_EXT_CROP_LENGTHS.set(AssetType.BIN, 4);
 
 const EMPTY: FileDescImage = {
 	assetName: 'EMPTY',
