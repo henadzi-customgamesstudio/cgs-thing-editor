@@ -40,6 +40,8 @@ assetsItemsRenderers.set(AssetType.BITMAP_FONT, assetItemRendererResource as (fi
 assetsItemsRenderers.set(AssetType.RESOURCE, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FBX, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.VIDEO, assetItemRendererResource as (file: FileDesc) => ComponentChild);
+assetsItemsRenderers.set(AssetType.GLB, assetItemRendererResource as (file: FileDesc) => ComponentChild);
+assetsItemsRenderers.set(AssetType.GLTF, assetItemRendererResource as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.FONT, assetItemRendererFont as (file: FileDesc) => ComponentChild);
 assetsItemsRenderers.set(AssetType.L10N, assetItemRendererL10n as (file: FileDesc) => ComponentChild);
 
@@ -80,6 +82,14 @@ assetTypesIcons.set(AssetType.FBX, R.img({
 assetTypesIcons.set(AssetType.VIDEO, R.img({
 	src: './img/asset-resource.png',
 	title: 'Show Videos'
+}));
+assetTypesIcons.set(AssetType.GLB, R.img({
+	src: './img/asset-resource.png',
+	title: 'Show GLB 3D Models'
+}));
+assetTypesIcons.set(AssetType.GLTF, R.img({
+	src: './img/asset-resource.png',
+	title: 'Show GLTF 3D Models'
 }));
 
 let allWindowsIds: string[] = [];

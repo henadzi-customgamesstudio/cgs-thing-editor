@@ -1016,6 +1016,10 @@ class Editor {
 		}, id);
 	}
 
+	async chooseGltf(title: ComponentChild = 'Choose 3D Model', currentValue?: string, filterCallback?: (f: FileDesc) => boolean): Promise<string | null> {
+		return this.chooseAsset(AssetType.GLTF, title, currentValue, undefined, filterCallback);
+	}
+
 	validateCallbackParameter(txt: string) {
 		if (txt.indexOf(',') >= 0) {
 			return 'Parameter can not contain commas. Use your own javascript function instead.';

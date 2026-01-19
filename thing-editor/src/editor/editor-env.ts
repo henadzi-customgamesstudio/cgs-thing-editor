@@ -255,6 +255,7 @@ export interface IEditablePropertyType {
 	'resource': true;
 	'video': true;
 	'fbx': true;
+	'gltf': true;
 }
 
 export interface IGoToLabelConsumer {
