@@ -1,0 +1,1340 @@
+{
+	"c": "Fight3dScene",
+	"p": {
+		"name": "fight3d",
+		"backgroundColor": 8553090
+	},
+	":": [
+		{
+			"c": "Resizer",
+			"p": {
+				"name": "fightScene",
+				"relativeX": true,
+				"xPos": 0.5,
+				"relativeY": true,
+				"yPos": 0.5
+			},
+			":": [
+				{
+					"c": "ConfigurableBgMusic",
+					"p": {
+						"name": "FightSceneMusic",
+						"fadeOut": 0.7,
+						"fadeIn": 0.7,
+						"configKey": "fight_scene"
+					}
+				},
+				{
+					"c": "Fight3dContainer",
+					"p": {
+						"name": "Fight3dContainer",
+						"x": -320,
+						"y": -694,
+						"spawnPointPaths2": [
+							"this.#octagon.#3dScene.#SpawnPoints2.#Spawn2_Left",
+							"this.#octagon.#3dScene.#SpawnPoints2.#Spawn2_Right"
+						],
+						"spawnPointPaths3": [
+							"this.#octagon.#3dScene.#SpawnPoints3.#Spawn3_Player",
+							"this.#octagon.#3dScene.#SpawnPoints3.#Spawn3_Enemy",
+							"this.#octagon.#3dScene.#SpawnPoints3.#Spawn3_Middle"
+						],
+						"spawnPointPaths4": [
+							"this.#octagon.#3dScene.#SpawnPoints4.#Spawn4_0",
+							"this.#octagon.#3dScene.#SpawnPoints4.#Spawn4_1",
+							"this.#octagon.#3dScene.#SpawnPoints4.#Spawn4_2",
+							"this.#octagon.#3dScene.#SpawnPoints4.#Spawn4_3"
+						],
+						"scoreboardContainerPath": "all.ScoreboardContainer",
+						"fightUiContainerPath": "all.FightUiContainer"
+					},
+					":": [
+						{
+							"c": "Fight3dCameraSettings",
+							"p": {
+								"name": "CameraSettings",
+								"_cameraZ": 471,
+								"_cameraFov": 60,
+								"_orbitCenterZ": -10
+							},
+							":": [
+								{
+									"c": "NumberAnimator",
+									"p": {
+										"name": "OrbitStartAnimator",
+										"timeline": {
+											"l": {
+												"idle": 0
+											},
+											"p": 0.001,
+											"d": 0.85,
+											"f": [
+												{
+													"n": "value",
+													"t": [
+														{
+															"v": -20,
+															"t": 0
+														},
+														{
+															"v": -20,
+															"t": 1
+														},
+														{
+															"v": 0,
+															"t": 180,
+															"a": "this.stop",
+															"m": 1
+														}
+													]
+												}
+											]
+										},
+										"fieldName": "_orbitAngle",
+										"targetPath": "this.parent"
+									}
+								},
+								{
+									"c": "StringMatchTrigger",
+									"p": {
+										"name": "FightEndCameraTrigger",
+										"dataPath": "data.fightSceneState",
+										"onEnable": "this.#CameraEndAnimator.gotoLabel,animate",
+										"matchValue": "END"
+									},
+									":": [
+										{
+											"c": "NumberAnimator",
+											"p": {
+												"name": "CameraEndAnimator",
+												"timeline": {
+													"l": {
+														"idle": 0,
+														"animate": 1
+													},
+													"p": 0.009000000000000001,
+													"d": 0.85,
+													"f": [
+														{
+															"n": "value",
+															"t": [
+																{
+																	"v": 0,
+																	"t": 0,
+																	"a": "this.stop"
+																},
+																{
+																	"v": 0,
+																	"t": 1
+																},
+																{
+																	"v": -20,
+																	"t": 120,
+																	"a": "this.stop"
+																}
+															]
+														}
+													]
+												},
+												"fieldName": "_cameraRotationX",
+												"targetPath": "this.parent.parent"
+											}
+										}
+									]
+								},
+								{
+									"c": "StringMatchTrigger",
+									"p": {
+										"name": "FightEndOrbitTrigger",
+										"dataPath": "data.fightSceneState",
+										"onEnable": "this.#OrbitEndAnimator.gotoLabel,animate",
+										"matchValue": "END"
+									},
+									":": [
+										{
+											"c": "NumberAnimator",
+											"p": {
+												"name": "OrbitEndAnimator",
+												"timeline": {
+													"l": {
+														"idle": 0,
+														"animate": 1
+													},
+													"p": 0.02,
+													"d": 0.85,
+													"f": [
+														{
+															"n": "value",
+															"t": [
+																{
+																	"v": 0,
+																	"t": 0,
+																	"a": "this.stop"
+																},
+																{
+																	"v": 0,
+																	"t": 1
+																},
+																{
+																	"v": 44,
+																	"t": 1200,
+																	"a": "this.stop",
+																	"m": 1
+																}
+															]
+														}
+													]
+												},
+												"fieldName": "_orbitAngle",
+												"targetPath": "this.parent.parent"
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"c": "Container",
+							"p": {
+								"name": "octagon"
+							},
+							":": [
+								{
+									"c": "DSprite",
+									"p": {
+										"name": "background",
+										"x": 336,
+										"y": 498,
+										"scale.x": 2.5,
+										"scale.y": 2.5,
+										"image": "img/Background_12a.png"
+									}
+								},
+								{
+									"c": "MovieClip",
+									"p": {
+										"name": "BackMotion",
+										"y": 830,
+										"alpha": 0.25,
+										"scale.x": 3.47,
+										"scale.y": 4.12,
+										"image": "img/imgBackground_01.jpg",
+										"timeline": {
+											"l": {},
+											"p": 0.02,
+											"d": 0.85,
+											"f": [
+												{
+													"n": "x",
+													"t": [
+														{
+															"v": 1374,
+															"t": 0,
+															"m": 1,
+															"s": 0.1
+														},
+														{
+															"v": 9,
+															"t": 360,
+															"m": 1,
+															"s": 1
+														}
+													]
+												}
+											]
+										}
+									}
+								},
+								{
+									"c": "DSprite",
+									"p": {
+										"name": "hand_back",
+										"x": 384,
+										"y": 669,
+										"visible": false,
+										"image": "img/fight_scene/Decor_02_01_v2_back.png"
+									}
+								},
+								{
+									"c": "Container",
+									"p": {
+										"name": "3dScene",
+										"x": 170,
+										"y": 566
+									},
+									":": [
+										{
+											"c": "Light3D",
+											"p": {
+												"x": 940,
+												"y": -506,
+												"color": 15922163,
+												"intensity": 9,
+												"zPos": 2800,
+												"directionX": 200,
+												"directionY": -1000,
+												"directionZ": 210,
+												"castShadow": false,
+												"showHelper": false
+											}
+										},
+										{
+											"c": "Container",
+											"p": {
+												"name": "SpawnPoints2"
+											},
+											":": [
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn2_Left",
+														"x": 188,
+														"y": 290,
+														"_rotationSettings": {
+															"x": 0,
+															"y": -95,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 50
+														},
+														"_targetIndexes": [
+															2
+														],
+														"_targetRotationsY": [
+															-95
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn2_Right",
+														"x": -51,
+														"y": 290,
+														"_index": 2,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 95,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 50
+														},
+														"_targetIndexes": [
+															1
+														],
+														"_targetRotationsY": [
+															95
+														]
+													}
+												}
+											]
+										},
+										{
+											"c": "Static3D",
+											"p": {
+												"name": "SpawnPoints3",
+												"syncRotationToChildren": true
+											},
+											":": [
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn3_Player",
+														"x": 167,
+														"y": 290,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 50
+														},
+														"_targetIndexes": [
+															2,
+															3
+														],
+														"_targetRotationsY": [
+															-61,
+															-112
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn3_Enemy",
+														"x": -27,
+														"y": 290,
+														"_index": 2,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 50
+														},
+														"_targetIndexes": [
+															1,
+															3
+														],
+														"_targetRotationsY": [
+															114,
+															160
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn3_Middle",
+														"x": 47,
+														"y": 290,
+														"_index": 3,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 0
+														},
+														"_targetIndexes": [
+															1,
+															2
+														],
+														"_targetRotationsY": [
+															50,
+															-15
+														]
+													}
+												}
+											]
+										},
+										{
+											"c": "Container",
+											"p": {
+												"name": "SpawnPoints4"
+											},
+											":": [
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn4_0",
+														"x": 179,
+														"y": 266,
+														"_rotationSettings": {
+															"x": 0,
+															"y": -65,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 100
+														},
+														"_targetIndexes": [
+															2,
+															3,
+															4
+														],
+														"_targetRotationsY": [
+															-140,
+															-58,
+															-104
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn4_1",
+														"x": 106,
+														"y": 266,
+														"_index": 2,
+														"_rotationSettings": {
+															"x": 0,
+															"y": -28,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": -9
+														},
+														"_targetIndexes": [
+															1,
+															3,
+															4
+														],
+														"_targetRotationsY": [
+															36,
+															-28,
+															60
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn4_2",
+														"x": 8,
+														"y": 287,
+														"_index": 3,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 30,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": 113
+														},
+														"_targetIndexes": [
+															1,
+															2,
+															4
+														],
+														"_targetRotationsY": [
+															112,
+															165,
+															200
+														]
+													}
+												},
+												{
+													"c": "Rooster3DPositionContainer",
+													"p": {
+														"name": "Spawn4_3",
+														"x": -78,
+														"y": 290,
+														"_index": 4,
+														"_rotationSettings": {
+															"x": 0,
+															"y": 110,
+															"z": 0
+														},
+														"_offsetSettings": {
+															"x": 0,
+															"y": 0,
+															"z": -3
+														},
+														"_targetIndexes": [
+															1,
+															2,
+															3
+														],
+														"_targetRotationsY": [
+															61,
+															90,
+															25
+														]
+													}
+												}
+											]
+										},
+										{
+											"c": "Particle3DSpawner",
+											"p": {
+												"name": "TestParticleSpawner",
+												"x": 62,
+												"y": 290,
+												"interval": 5,
+												"intervalRandom": 3,
+												"container": "this",
+												"spawnCenter": {
+													"x": 0,
+													"y": 0,
+													"z": 50
+												},
+												"prefabToSpawn": "prefabs/3d/particles/TestParticle3D",
+												"spawnShape": "box",
+												"boxSize": {
+													"x": 380,
+													"y": 20,
+													"z": 300
+												},
+												"speedMin": 0.4,
+												"speedMax": 1.1,
+												"velocityDirection": "up"
+											}
+										},
+										{
+											"c": "QuarksParticle3D",
+											"p": {
+												"name": "ParticleRight_1",
+												"x": 190,
+												"y": 226,
+												"visible": false,
+												"baseScale": 10,
+												"modelOffsetZ": 50,
+												"_jsonPath": "libs/quarks/Cartoon_Blue_Flare.json"
+											}
+										},
+										{
+											"c": "QuarksParticle3D",
+											"p": {
+												"name": "ParticleRight_2",
+												"x": 160,
+												"y": 242,
+												"visible": false,
+												"baseScale": 10,
+												"modelOffsetZ": 212,
+												"_jsonPath": "libs/quarks/Cartoon_Blue_Flare.json"
+											}
+										},
+										{
+											"c": "QuarksParticle3D",
+											"p": {
+												"name": "ParticleLeft_1",
+												"x": -81,
+												"y": 226,
+												"visible": false,
+												"baseScale": 10,
+												"modelOffsetZ": 50,
+												"_jsonPath": "libs/quarks/Cartoon_Blue_Flare.json"
+											}
+										},
+										{
+											"c": "StringMatchTrigger",
+											"p": {
+												"name": "OctagonWinTrigger",
+												"x": 94,
+												"y": -68,
+												"dataPath": "data.fightResult",
+												"onEnable": "this.#OctagonWinAnimation.enable",
+												"onDisable": "this.#OctagonWinAnimation.disable",
+												"matchValue": "Win"
+											},
+											":": [
+												{
+													"c": "QuarksParticle3DSpawner",
+													"p": {
+														"name": "OctagonWinAnimation",
+														"y": -137,
+														"interval": 20,
+														"speed": 4,
+														"speedRandom": 1,
+														"container": "this",
+														"spawnCenter": {
+															"x": 0,
+															"y": 0,
+															"z": 260
+														},
+														"prefabToSpawn": "prefabs/particles/OctagonWinParticle_1",
+														"spawnShape": "sphere",
+														"sphereRadius": 100
+													}
+												}
+											]
+										},
+										{
+											"c": "StringMatchTrigger",
+											"p": {
+												"name": "OctagonFailTrigger",
+												"x": 109,
+												"y": -59,
+												"dataPath": "data.fightResult",
+												"onEnable": "this.#OctagonFailAnimation.enable",
+												"onDisable": "this.#OctagonFailAnimation.disable",
+												"matchValue": "Fail"
+											},
+											":": [
+												{
+													"c": "QuarksParticle3DSpawner",
+													"p": {
+														"name": "OctagonFailAnimation",
+														"y": -24,
+														"enabled": false,
+														"interval": 20,
+														"speed": 4,
+														"speedRandom": 1,
+														"container": "this",
+														"prefabToSpawn": "prefabs/particles/OctagonFailParticle_1",
+														"spawnShape": "sphere",
+														"sphereRadius": 100
+													}
+												}
+											]
+										},
+										{
+											"c": "QuarksParticle3D",
+											"p": {
+												"name": "ParticleLeft_2",
+												"x": -19,
+												"y": 240,
+												"visible": false,
+												"baseScale": 10,
+												"modelOffsetZ": 212,
+												"_jsonPath": "libs/quarks/Cartoon_Blue_Flare.json"
+											}
+										},
+										{
+											"c": "Container",
+											"p": {
+												"name": "OctagonContainer",
+												"x": -18,
+												"scale.x": 1.5,
+												"scale.y": 1.1
+											},
+											":": [
+												{
+													"c": "Static3D",
+													"p": {
+														"name": "Hand_0_3d_v1",
+														"x": 330,
+														"y": 300,
+														"visible": false,
+														"interactive": true,
+														"baseScale": 13.5,
+														"castShadow": false,
+														"receiveShadow": false,
+														"modelOffsetZ": -280,
+														"modelRotationY": -156,
+														"defaultModelId": "hand_decor_01",
+														"animationName": "HelloAction"
+													}
+												},
+												{
+													"c": "Static3D",
+													"p": {
+														"name": "Octagon_02",
+														"x": 60,
+														"y": 266,
+														"interactive": true,
+														"baseScale": 8.5,
+														"castShadow": false,
+														"receiveShadow": false,
+														"modelOffsetZ": -10,
+														"defaultModelId": "Octagon_02"
+													}
+												},
+												{
+													"c": "Static3D",
+													"p": {
+														"name": "Decor_02",
+														"x": -127,
+														"y": 416,
+														"interactive": true,
+														"baseScale": 10,
+														"castShadow": false,
+														"receiveShadow": false,
+														"modelOffsetZ": -217,
+														"defaultModelId": "Decor_02"
+													}
+												},
+												{
+													"c": "Static3D",
+													"p": {
+														"name": "Decor_03",
+														"x": 244,
+														"y": 416,
+														"interactive": true,
+														"baseScale": 10,
+														"castShadow": false,
+														"receiveShadow": false,
+														"modelOffsetZ": -217,
+														"modelRotationY": -90,
+														"defaultModelId": "Decor_02"
+													}
+												},
+												{
+													"c": "Static3D",
+													"p": {
+														"name": "EnergyField_01",
+														"x": 60,
+														"y": 278,
+														"visible": false,
+														"interactive": true,
+														"baseScale": 8,
+														"castShadow": false,
+														"receiveShadow": false,
+														"modelOffsetZ": -37,
+														"defaultModelId": "EnergyField_01"
+													}
+												},
+												{
+													"c": "Container",
+													"p": {
+														"name": "Scoreboard",
+														"x": 60,
+														"y": -195,
+														"scale.x": 0.9,
+														"scale.y": 0.6
+													},
+													":": [
+														{
+															"c": "ScoreboardContainer",
+															"p": {
+																"name": "ScoreboardContainer",
+																"container1vs1Path": "this.#Container_1vs1",
+																"container1vs2Path": "this.#Container_1vs2",
+																"container1vs3Path": "this.#Container_1vs3"
+															},
+															":": [
+																{
+																	"c": "Container",
+																	"p": {
+																		"name": "Container_1vs1",
+																		"visible": false
+																	},
+																	":": [
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "CurrentRoosterContainer",
+																				"x": -76,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "img/avatars/The_Broody_Bruiser.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": 61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": 61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_1",
+																				"x": 76,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "3d/textures/The_Fowl-Play_3d.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		}
+																	]
+																},
+																{
+																	"c": "Container",
+																	"p": {
+																		"name": "Container_1vs2",
+																		"visible": false
+																	},
+																	":": [
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "CurrentRoosterContainer",
+																				"x": -76,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "img/avatars/The_Broody_Bruiser.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": 61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": 61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_1",
+																				"x": 31,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "3d/textures/The_Fowl-Play_3d.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_2",
+																				"x": 76,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "3d/textures/The_Fowl-Play_3d.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		}
+																	]
+																},
+																{
+																	"c": "Container",
+																	"p": {
+																		"name": "Container_1vs3",
+																		"visible": false
+																	},
+																	":": [
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "CurrentRoosterContainer",
+																				"x": -76,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -12,
+																						"__image": "img/avatars/The_Broody_Bruiser.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": 61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": 61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_1",
+																				"x": 13,
+																				"y": -72,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -7,
+																						"__image": "img/avatars/The_Broody_Bruiser.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_2",
+																				"x": 53,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -7,
+																						"__image": "img/avatars/Cage-Control_Clucker.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		},
+																		{
+																			"c": "ScoreboardItem",
+																			"p": {
+																				"name": "EnemyRoosterContainer_3",
+																				"x": 79,
+																				"y": 70,
+																				"roosterImagePath": "this.#Image",
+																				"roosterNameTextPath": "this.#Name",
+																				"roosterMultiplierTextPath": "this.#Multiplier"
+																			},
+																			":": [
+																				{
+																					"c": "Sprite3D",
+																					"p": {
+																						"name": "Image",
+																						"x": 0,
+																						"baseScale": 25,
+																						"modelOffsetZ": -7,
+																						"__image": "img/avatars/G_A_P_the_Flange.png"
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Name",
+																						"x": -61,
+																						"y": -11,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				},
+																				{
+																					"c": "Text3D",
+																					"p": {
+																						"name": "Multiplier",
+																						"x": -61,
+																						"y": 37,
+																						"baseScale": 10,
+																						"modelOffsetZ": -12,
+																						"__text": "1234",
+																						"__fontSize": 31,
+																						"__fill": 16751872,
+																						"__strokeThickness": 9
+																					}
+																				}
+																			]
+																		}
+																	]
+																}
+															]
+														},
+														{
+															"c": "Static3D",
+															"p": {
+																"name": "Scorebord_02",
+																"interactive": true,
+																"baseScale": 10,
+																"castShadow": false,
+																"receiveShadow": false,
+																"defaultModelId": "Scoreboard_02"
+															}
+														}
+													]
+												}
+											]
+										},
+										{
+											"c": "ThreeJsLayer",
+											"p": {
+												"x": -1096,
+												"y": -670,
+												"scale.x": 1920,
+												"scale.y": 1669
+											}
+										}
+									]
+								},
+								{
+									"c": "DSprite",
+									"p": {
+										"name": "Hand_front",
+										"x": 2040,
+										"y": 712,
+										"scale.x": 1.25,
+										"scale.y": 1.25,
+										"image": "img/fight_scene/Decor_02_02_v2_front.png"
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"c": "FightUiContainer",
+					"p": {
+						"name": "FightUiContainer"
+					}
+				},
+				{
+					"c": "ScreenFlashEffect",
+					"p": {
+						"name": "ScreenFlashEffect",
+						"_normalFlashAlpha": 0.4,
+						"_criticalFlashAlpha": 0.7,
+						"_fadeInDuration": 50,
+						"_fadeOutDuration": 150,
+						"_normalFlashColor": 16777215,
+						"_criticalFlashColor": 16729156,
+						"_overlayWidth": 3000,
+						"_overlayHeight": 3000
+					}
+				},
+				{
+					"c": "ViewContainer",
+					"p": {
+						"name": "ViewContainer"
+					}
+				}
+			]
+		}
+	]
+}
