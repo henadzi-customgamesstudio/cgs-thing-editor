@@ -1,0 +1,73 @@
+{
+    "timings": {
+        "progressBarDurationMs": 2200,
+        "turnDelayMs": 300,
+        "battleStartDelayMs": 300,
+        "openWinPopupDelayMs": 3500,
+        "openLosePopupDelayMs": 3500
+    },
+    "animations": {
+        "animationToEvents": {
+            "ATTACK_SUPER": [
+                "Event_Attack_SUPER_1",
+                "Event_Attack_SUPER_2",
+                "Event_Attack_SUPER_3"
+            ],
+            "ATTACK_L": [
+                "Event_Attack_L"
+            ],
+            "ATTACK_M": [
+                "Event_Attack_M"
+            ],
+            "ATTACK_H": [
+                "Event_Attack_H"
+            ],
+            "HIT_REACTION_L": [
+                "Event_Hit_Reaction_L"
+            ],
+            "HIT_REACTION_M": [
+                "Event_Hit_Reaction_M"
+            ],
+            "HIT_REACTION_H": [
+                "Event_Hit_Reaction_H"
+            ],
+            "HIT_REACTION_DEATH_H": [
+                "Event_Hit_Reaction_H"
+            ],
+            "HIT_REACTION_DEATH_L": [
+                "Event_Hit_Reaction_L"
+            ],
+            "HIT_REACTION_DEATH_M": [
+                "Event_Hit_Reaction_M"
+            ]
+        },
+        "attackAnimationToHitAnimations": {
+            "ATTACK_L": [
+                "HIT_REACTION_L"
+            ],
+            "ATTACK_M": [
+                "HIT_REACTION_M"
+            ],
+            "ATTACK_H": [
+                "HIT_REACTION_H"
+            ],
+            "ATTACK_SUPER": [
+                "HIT_REACTION_DEATH_H"
+            ]
+        },
+        "attackAnimationToDeathAnimations": {
+            "ATTACK_L": [
+                "HIT_REACTION_DEATH_L"
+            ],
+            "ATTACK_M": [
+                "HIT_REACTION_DEATH_M"
+            ],
+            "ATTACK_H": [
+                "HIT_REACTION_DEATH_H"
+            ]
+        },
+        "defaultGreetingAnimation": "WIN",
+        "defaultWinAnimation": "WIN",
+        "defaultIdleAnimation": "IDLE"
+    }
+}
