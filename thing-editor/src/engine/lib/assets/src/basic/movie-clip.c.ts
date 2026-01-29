@@ -463,7 +463,9 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 	__afterDeserialization() {
 		if (this._timelineData) { // remove animated props from object props
 			for (let f of this._timelineData.f) {
-				(this as KeyedMap<any>)[f.n] = f.t[0].v;
+				if (f.t.length > 0) {
+					(this as KeyedMap<any>)[f.n] = f.t[0].v;
+				}
 			}
 		}
 		if (game.__EDITOR_mode) {

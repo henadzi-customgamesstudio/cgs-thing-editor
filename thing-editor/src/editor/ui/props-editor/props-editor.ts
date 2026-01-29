@@ -135,11 +135,13 @@ class PropsEditor extends ComponentDebounced<ClassAttributes<PropsEditor>> {
 
 					if ((newObject instanceof MovieClip) && newObject._timelineData) {
 						for (let animationField of newObject._timelineData.f) {
-							const animationValue = animationField.t[0].v;
-							if ((newObject as KeyedObject)[animationField.n] !== animationValue) {
-								(newObject as KeyedObject)[animationField.n] = animationValue;
-								game.editor.ui.status.warn('Value of property "' + animationField.n + '" was changed to ' + animationValue + ' because its refers to MovieClip where property is animated.', 30018, newObject, animationField.n);
-								game.editor.sceneModified();
+							if (animationField.t.length > 0) {
+								const animationValue = animationField.t[0].v;
+								if ((newObject as KeyedObject)[animationField.n] !== animationValue) {
+									(newObject as KeyedObject)[animationField.n] = animationValue;
+									game.editor.ui.status.warn('Value of property "' + animationField.n + '" was changed to ' + animationValue + ' because its refers to MovieClip where property is animated.', 30018, newObject, animationField.n);
+									game.editor.sceneModified();
+								}
 							}
 						}
 					}
