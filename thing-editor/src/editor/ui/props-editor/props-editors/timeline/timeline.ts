@@ -212,6 +212,10 @@ export default class Timeline extends ComponentDebounced<TimelineProps, Timeline
 					allKeyframesToSelect.push(tl.l[labelName] as any as TimelineKeyFrame);
 				}
 				for (let fieldName in data.fields) {
+					if (!(o.constructor as any).__editableProps.find((f: any) => f.name === fieldName)) {
+						game.editor.ui.status.warn('Paste: Unknown animation field "' + fieldName + '" skipped.', 32025, o, 'timeline');
+						continue;
+					}
 					const keyframes = data.fields[fieldName];
 					getFrameAtTimeOrCreate(o, fieldName, 0);
 					for (let keyframeData of keyframes) {
