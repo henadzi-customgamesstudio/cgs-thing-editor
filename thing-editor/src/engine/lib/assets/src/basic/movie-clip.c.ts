@@ -513,6 +513,9 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 	}
 
 	static __getValueAtTime(field: TimelineFieldData, time: number): number | boolean | string {
+		if (field.t.length === 0) {
+			return 0;
+		}
 		if (!field.___cacheTimeline) {
 			let fieldPlayer = Pool.create(FieldPlayer);
 			let discretePositions: true[] = [];
