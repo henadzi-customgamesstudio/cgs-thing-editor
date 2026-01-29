@@ -80,6 +80,9 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 		let damper = desData.d;
 		let fieldsData = desData.f;
 		for (let i = 0; i < fieldsData.length; i++) {
+			if (fieldsData[i].t.length === 0) {
+				continue;
+			}
 			let p = Pool.create(FieldPlayer);
 			p.init(this, fieldsData[i], pow, damper);
 			this.fieldPlayers.push(p);
@@ -281,9 +284,9 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 						showStack(stack);
 					}),
 					(this._goToLabelNextFrame === labelName ? 'repeated gotoLabel: ' : 'gotoLabel: ') +
-						labelName +
-						'; time: ' +
-						game.time
+					labelName +
+					'; time: ' +
+					game.time
 				),
 				30020,
 				this,
@@ -376,7 +379,7 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 		}
 	}
 
-	static __validateObjectData(data:SerializedObjectProps):SerializedDataValidationError | undefined {
+	static __validateObjectData(data: SerializedObjectProps): SerializedDataValidationError | undefined {
 		const timeline = data.timeline as TimelineData;
 		if (timeline?.f.length === 1) {
 			for (const f of timeline.f) {
@@ -384,7 +387,7 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 					if (k.a?.startsWith('this.gotoLabel,')) {
 						return {
 							message: '"this.gotoLabel,..." action can be replaced with keyframe`s loop=' + timeline.l[k.a.split(',')[1]],
-							findObjectCallback: (o:Container) => {
+							findObjectCallback: (o: Container) => {
 								return (o as MovieClip)._timelineData?.f.length === 1 && (o as MovieClip)._timelineData.f[0].t.some(_k => k.t === _k.t && _k.a?.startsWith('this.gotoLabel,'));
 							},
 							fieldName: 'timeline,' + f.n + ',' + k.t
@@ -565,13 +568,13 @@ export default class MovieClip extends DSprite implements IGoToLabelConsumer {
 		this.__initTimeline();
 	}
 
-	__getLabels():undefined | string[] {
+	__getLabels(): undefined | string[] {
 		if (this.timeline) {
 			return Object.keys(this.timeline.l).filter(l => !l.startsWith('__'));
 		}
 	}
 
-	@editable({name: 'log labels', type: 'btn', onClick: LabelsLogger.toggle })
+	@editable({ name: 'log labels', type: 'btn', onClick: LabelsLogger.toggle })
 	@editable({ select: SELECT_LOG_LEVEL })
 	__logLevel = 0;
 
@@ -630,15 +633,15 @@ const calculateCacheSegmentForField = (fieldPlayer: FieldPlayer, cacheArray: Tim
 (MovieClip.prototype.gotoLabel as SelectableProperty).___EDITOR_isHiddenForDataChooser = true;
 (MovieClip.prototype.gotoLabelIf as SelectableProperty).___EDITOR_isGoodForCallbackChooser = true;
 (MovieClip.prototype.gotoLabelIf as SelectableProperty).___EDITOR_isHiddenForDataChooser = true;
-(MovieClip.prototype.gotoLabelIf as SelectableProperty).___EDITOR_callbackParameterChooserFunction = async(context: MovieClip) => {
+(MovieClip.prototype.gotoLabelIf as SelectableProperty).___EDITOR_callbackParameterChooserFunction = async (context: MovieClip) => {
 	const label = await gotoLabelHelper(context);
 	if (label && label.length) {
 		const path = await DataPathEditor.choosePath(' gotoLabelIf condition');
 		if (path) {
 			label.push(path);
 			const isInverted = await game.editor.ui.modal.showListChoose('Invert condition?', [
-				{name: R.span({className: 'danger'}, 'invert'), pureName: 'invert', value: 1},
-				{name: 'no invert', value: 0}
+				{ name: R.span({ className: 'danger' }, 'invert'), pureName: 'invert', value: 1 },
+				{ name: 'no invert', value: 0 }
 			]);
 			if (isInverted?.value) {
 				label.push('1');
