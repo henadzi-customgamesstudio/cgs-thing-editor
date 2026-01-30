@@ -1,7 +1,10 @@
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 
 const {walkSync} = require('./editor-server-utils');
+
+const imgExt = /\.(png|jpe?g)$/i;
 
 module.exports = {
 	build: (projectDir, debug, assetsToCopy, projectDesc) => {
@@ -43,7 +46,15 @@ module.exports = {
 						debugger;
 						reject(er);
 					} else {
-						resolve();
+						if (!asset.to.startsWith('3d/') && imgExt.test(asset.to)) {
+							sharp(editorRoot + asset.from)
+								.webp({quality: 82, alphaQuality: 90})
+								.toFile(to.replace(imgExt, '.webp'))
+								.then(resolve)
+								.catch(resolve);
+						} else {
+							resolve();
+						}
 					}
 				});
 			});

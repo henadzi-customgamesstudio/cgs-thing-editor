@@ -8,7 +8,7 @@ import type { __EditorType } from 'thing-editor/src/editor/editor';
 import Scene from 'thing-editor/src/engine/lib/assets/src/basic/scene.c';
 
 import assert from 'thing-editor/src/engine/debug/assert';
-import Lib from 'thing-editor/src/engine/lib';
+import Lib, { checkWebPSupport } from 'thing-editor/src/engine/lib';
 
 import { ButtonOnlyPropertyDesc } from 'thing-editor/src/editor/utils/button-only-selectable-property';
 import EDITOR_FLAGS from 'thing-editor/src/editor/utils/flags';
@@ -198,7 +198,8 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 		stage.__nodeExtendData = {};
 	}
 
-	init(element?: HTMLElement, gameId?: string, pixiOptions?: Partial<IApplicationOptions>) {
+	async init(element?: HTMLElement, gameId?: string, pixiOptions?: Partial<IApplicationOptions>) {
+		await checkWebPSupport();
 		/// #if EDITOR
 		/*
 		/// #endif

@@ -471,6 +471,19 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 		}
 	}
 
+	// Copy raw fonts folder (ttf/otf/etc.) to keep original paths for @font-face URLs.
+	const rawFontsDir = game.editor.currentProjectAssetsDir + 'fonts/';
+	if (fs.exists(rawFontsDir)) {
+		const fontFiles = fs.readDirRecursive(rawFontsDir);
+		for (const file of fontFiles) {
+			const relPath = file.fileName.substring(game.editor.currentProjectAssetsDir.length);
+			assetsToCopy.push({
+				from: '/' + file.fileName,
+				to: relPath
+			});
+		}
+	}
+
 	return {
 		scenes,
 		prefabs,
