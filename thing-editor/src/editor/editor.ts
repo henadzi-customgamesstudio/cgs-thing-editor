@@ -585,7 +585,7 @@ class Editor {
 
 			editorEvents.emit('gameWillBeInitialized');
 
-			game.init(window.document.getElementById('viewport-root') || undefined, 'editor.' + this.projectDesc.id);
+			await game.init(window.document.getElementById('viewport-root') || undefined, 'editor.' + this.projectDesc.id);
 
 			game.stage.interactiveChildren = false;
 			protectAccessToSceneNode(game.stage, 'game stage');

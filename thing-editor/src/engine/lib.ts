@@ -44,6 +44,30 @@ const removeHoldersToCleanup: RemoveHolder[] = [];
 
 export const unHashedFileToHashed: Map<string, string> = new Map();
 
+let __webpSupported: boolean | null = null;
+
+/** WebP files are only generated during build; in dev mode they don't exist */
+const __webpFilesAvailable = typeof window !== 'undefined' &&
+	(window.location.pathname.includes('/debug/') || window.location.pathname.includes('/release/'));
+
+export function checkWebPSupport(): Promise<boolean> {
+	if (__webpSupported !== null) {
+		return Promise.resolve(__webpSupported);
+	}
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.onload = () => {
+			__webpSupported = img.width > 0;
+			resolve(__webpSupported!);
+		};
+		img.onerror = () => {
+			__webpSupported = false;
+			resolve(false);
+		};
+		img.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
+	});
+}
+
 //@ts-ignore
 const _initParsers = () => {
 	const spriteSheetLoader = Assets.loader.parsers.find(p => p.name === 'spritesheetLoader');
@@ -55,7 +79,11 @@ const _initParsers = () => {
 		if (!hashedFileName) {
 			throw new Error(`Atlas image "${url}" not registered. Check if the PNG file exists and is included in the build.`);
 		}
-		asset.meta.image = hashedFileName.split('/').pop();
+		let imageName = hashedFileName.split('/').pop()!;
+		if (__webpSupported && __webpFilesAvailable && /\.(png|jpe?g)$/i.test(imageName)) {
+			imageName = imageName.replace(/\.(png|jpe?g)$/i, '.webp');
+		}
+		asset.meta.image = imageName;
 		return originalParser(asset, options, ...args);
 	};
 
@@ -299,11 +327,14 @@ export default class Lib
 			/// #if EDITOR
 			const asset = fs.getFileByAssetName(name, AssetType.IMAGE) as FileDescImage;
 			/// #endif
-			Texture.fromURL(
-				/// #if EDITOR
-				getVersionedFileName(asset) ||
-				/// #endif
-				textureURL).then((newTexture) => {
+			let urlToLoad = textureURL as string;
+			/// #if EDITOR
+			urlToLoad = getVersionedFileName(asset) || urlToLoad;
+			/// #endif
+			if (__webpSupported && __webpFilesAvailable && /\.(png|jpe?g)$/i.test(urlToLoad)) {
+				urlToLoad = urlToLoad.replace(/\.(png|jpe?g)$/i, '.webp');
+			}
+			Texture.fromURL(urlToLoad).then((newTexture) => {
 					/// #if EDITOR
 					if (textures[name]) {
 						if (textures[name] && !Lib.__isSystemTexture(textures[name], name)) {

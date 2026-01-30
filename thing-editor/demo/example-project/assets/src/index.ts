@@ -1,3 +1,3 @@
 import game from 'thing-editor/src/engine/game';
 
-game.init();
+await game.init();
