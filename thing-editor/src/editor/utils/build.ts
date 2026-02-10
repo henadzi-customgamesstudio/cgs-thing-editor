@@ -355,6 +355,7 @@ function enumAssetsToCopy(assets: Set<FileDesc>, originalFileNames = false) {
 								from: file.fileName,
 								to: file.assetName
 							});
+							images.push(file.assetName);
 						} else {
 							assetsToCopy.push({
 								from: file.fileName,

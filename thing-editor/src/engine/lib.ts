@@ -818,6 +818,10 @@ export default class Lib
 	}
 
 	static unHashFileName(fileName: string, assetsRoot: string = Lib.ASSETS_ROOT): string {
+		if (fileName.startsWith('3d/')) {
+			unHashedFileToHashed.set(assetsRoot + fileName, fileName);
+			return fileName;
+		}
 		const n = fileName.lastIndexOf('.');
 		if (n > 0) {
 			const ret = fileName.substring(0, n - 9) + fileName.substring(n);
@@ -825,6 +829,16 @@ export default class Lib
 			return ret;
 		}
 		return fileName.slice(0, -9);
+	}
+
+	static get3DTextures(): string[] {
+		const textures: string[] = [];
+		for (const [key] of unHashedFileToHashed) {
+			if (key.includes('/3d/textures/')) {
+				textures.push(key.replace(Lib.ASSETS_ROOT, ''));
+			}
+		}
+		return textures;
 	}
 
 	static destroyObjectAndChildren(o: Container, itsRootRemoving?: boolean) {
