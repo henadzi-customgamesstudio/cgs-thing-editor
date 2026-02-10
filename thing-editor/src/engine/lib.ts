@@ -46,9 +46,13 @@ export const unHashedFileToHashed: Map<string, string> = new Map();
 
 let __webpSupported: boolean | null = null;
 
+declare const __WEBP_FILES_AVAILABLE__: boolean | undefined;
+
 /** WebP files are only generated during build; in dev mode they don't exist */
-const __webpFilesAvailable = typeof window !== 'undefined' &&
-	(window.location.pathname.includes('/debug/') || window.location.pathname.includes('/release/'));
+const __webpFilesAvailable = typeof __WEBP_FILES_AVAILABLE__ !== 'undefined'
+	? __WEBP_FILES_AVAILABLE__
+	: (typeof window !== 'undefined' &&
+		(window.location.pathname.includes('/debug/') || window.location.pathname.includes('/release/')));
 
 export function checkWebPSupport(): Promise<boolean> {
 	if (__webpSupported !== null) {

@@ -38,6 +38,7 @@ module.exports = (_root, publicDir, outDir, debug, _projectDesc) => {
 			},
 		},
 		define: {
+			__WEBP_FILES_AVAILABLE__: true,
 			SPINE_SRC_PATH: JSON.stringify('https://cdn.jsdelivr.net/npm/pixi-spine@4.0.4/dist/pixi-spine.js')
 		},
 		resolve: {
