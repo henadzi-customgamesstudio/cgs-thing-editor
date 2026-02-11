@@ -361,6 +361,22 @@ class Game extends utils.EventEmitter<ThingGameEvents> {
 		TextureGCSystem.defaultMode = GC_MODES.MANUAL;
 
 		this.projectDesc = projectDescriptor;
+		const isIOS = !!(this.isMobile?.apple?.phone || this.isMobile?.apple?.ipod || this.isMobile?.apple?.tablet);
+		if (isIOS && Array.isArray(this.projectDesc.soundFormats)) {
+			const preferred = ['m4a', 'aac'];
+			const ordered: string[] = [];
+			for (const format of preferred) {
+				if (this.projectDesc.soundFormats.includes(format)) {
+					ordered.push(format);
+				}
+			}
+			for (const format of this.projectDesc.soundFormats) {
+				if (!ordered.includes(format)) {
+					ordered.push(format);
+				}
+			}
+			this.projectDesc.soundFormats = ordered;
+		}
 		/// #if EDITOR
 		/*
 		/// #endif
