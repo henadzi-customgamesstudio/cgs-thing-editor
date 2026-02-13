@@ -721,7 +721,16 @@ export default class Lib
 		//*/
 	}
 
-	static addAssets(data: AssetsDescriptor, assetsRoot = Lib.ASSETS_ROOT) {
+	static addAssets(data: AssetsDescriptor, assetsRoot?: string) {
+		if (!assetsRoot && Lib.ASSETS_ROOT === './assets/' && typeof document !== 'undefined' && document.baseURI) {
+			const resolvedRoot = new URL('./assets/', document.baseURI).href;
+			if (resolvedRoot !== new URL('./assets/', window.location.href).href) {
+				Lib.ASSETS_ROOT = resolvedRoot;
+			}
+		}
+		if (!assetsRoot) {
+			assetsRoot = Lib.ASSETS_ROOT;
+		}
 
 		for (const prefabName in data.prefabs) {
 			if (!prefabs[prefabName]) {
