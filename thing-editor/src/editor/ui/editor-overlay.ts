@@ -39,7 +39,7 @@ editorEvents.once('gameWillBeInitialized', () => {
 
 	(document.querySelector('#viewport-root') as HTMLDivElement).addEventListener('pointerdown', function onMouseDown(ev: MouseEvent) {
 		if (game.pixiApp && (ev.target === game.pixiApp.view)) {
-			if (ev.buttons === 4) {
+			if (ev.buttons === 4 && !(game as any).__overrideEditorCameraControl) {
 				isViewPortScrolling = true;
 				scrollingX = game.__mouse_EDITOR.x;
 				scrollingY = game.__mouse_EDITOR.y;
@@ -95,6 +95,7 @@ editorEvents.once('gameWillBeInitialized', () => {
 	window.addEventListener('mouseup', stopRightButtonMoving);
 
 	window.addEventListener('wheel', function onWheel(ev) {
+		if ((game as any).__overrideEditorCameraControl) return;
 		if (game.pixiApp && (ev.target === game.pixiApp.view)) {
 
 			let pivot = game.stage.toLocal(game.__mouse_EDITOR, game.stage.parent);
