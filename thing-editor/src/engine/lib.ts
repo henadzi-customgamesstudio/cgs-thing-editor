@@ -335,7 +335,7 @@ export default class Lib
 			/// #if EDITOR
 			urlToLoad = getVersionedFileName(asset) || urlToLoad;
 			/// #endif
-			if (__webpSupported && __webpFilesAvailable && /\.(png|jpe?g)$/i.test(urlToLoad)) {
+			if (__webpSupported && __webpFilesAvailable && /\.(png|jpe?g)$/i.test(urlToLoad) && !urlToLoad.includes('/3d/')) {
 				urlToLoad = urlToLoad.replace(/\.(png|jpe?g)$/i, '.webp');
 			}
 			Texture.fromURL(urlToLoad).then((newTexture) => {
