@@ -77,14 +77,27 @@ export default class RadioGroup extends Container {
 
     public setSelectedByValue(value: string) {
         const toggle = this._toggles.find(t => t.value === value);
+        this._toggles.forEach(t => {
+            if (t !== toggle) {
+                t.setChecked(false, true);
+            }
+        });
         if (toggle) {
             toggle.setChecked(true, false);
+            this._selectedToggle = toggle;
         }
     }
 
     public setSelectedByIndex(index: number) {
         if (index >= 0 && index < this._toggles.length) {
-            this._toggles[index].setChecked(true, false);
+            const toggle = this._toggles[index];
+            this._toggles.forEach(t => {
+                if (t !== toggle) {
+                    t.setChecked(false, true);
+                }
+            });
+            toggle.setChecked(true, false);
+            this._selectedToggle = toggle;
         }
     }
 
