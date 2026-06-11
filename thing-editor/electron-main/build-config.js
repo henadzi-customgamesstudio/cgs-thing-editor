@@ -47,14 +47,20 @@ module.exports = (_root, publicDir, outDir, debug, _projectDesc) => {
 				'.tmp': path.resolve(__dirname, '../../.tmp'),
 				'libs': path.resolve(__dirname, '../../libs'),
 				'thing-editor': path.resolve(__dirname, '../../thing-editor'),
-				// CDN versions (smaller bundle, requires internet):
-				'howler.js': 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
-				'pixi.js': 'https://cdn.jsdelivr.net/npm/pixi.js@7.2.4/dist/pixi.min.mjs',
-				'three': 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js'
-				// Local versions (larger bundle, works offline):
-				// 'howler.js': path.resolve(__dirname, '../../node_modules/howler/dist/howler.min.js'),
-				// 'pixi.js': path.resolve(__dirname, '../../node_modules/pixi.js/dist/pixi.mjs'),
-				// 'three': path.resolve(__dirname, '../../node_modules/three')
+				// Engine runtime libs. Per-project switch via `"offlineBuild": true` in
+				// thing-project.json: bundles the exact same versions from
+				// ./offline-vendor (larger bundle, works with no internet — e.g. the
+				// MFC event-box LAN deployment). Default: CDN imports (smaller bundle,
+				// requires internet at runtime).
+				...(_projectDesc.offlineBuild ? {
+					'howler.js': path.resolve(__dirname, 'offline-vendor/howler.min.js'),
+					'pixi.js': path.resolve(__dirname, 'offline-vendor/pixi.min.mjs'),
+					'three': path.resolve(__dirname, 'offline-vendor/three.module.min.js')
+				} : {
+					'howler.js': 'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
+					'pixi.js': 'https://cdn.jsdelivr.net/npm/pixi.js@7.2.4/dist/pixi.min.mjs',
+					'three': 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js'
+				})
 			}
 		}
 	};
