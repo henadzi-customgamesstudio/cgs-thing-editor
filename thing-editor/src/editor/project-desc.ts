@@ -23,6 +23,10 @@ declare global {
 		dynamicStageSize: boolean;
 		__buildConfigDebug: string;
 		__buildConfigRelease: string;
+		/** Bundle engine runtime libs (pixi/three/howler) locally instead of CDN imports,
+		 * and skip the runtime Google Fonts request in built games — the build then works
+		 * with no internet. See build-config.js (offline-vendor). */
+		offlineBuild?: boolean;
 		/** Path to custom HTML build template (index.build.html) */
 		__buildTemplate?: string;
 		preventUpscale: boolean;
